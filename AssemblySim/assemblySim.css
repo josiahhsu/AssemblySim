@@ -1,0 +1,6 @@
+@import url("../main.css");
+
+textarea{
+    width: 25em;
+    height: 8em;
+}

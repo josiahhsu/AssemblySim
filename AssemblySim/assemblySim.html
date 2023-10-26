@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assembly Simulator</title>
+    <link rel="stylesheet" href="assemblySim.css">
+    <link rel="icon" type="image/x-icon" href="../Birb-icon.png">
+    <script src="assemblySim.js"></script>
+</head>
+<body>
+    <div id="home"><a href="../index.html">Back to Home</a></div>
+    <h2>Assembly Simulator</h2> 
+
+    <p>
+        You can write programs in assembly code below.
+        The syntax for each line is [instruction] [Operand1] [Operand2] [...].
+        Empty lines will be treated as no-ops and skipped.
+        Operands can either be an immediate value (prefixed with $) or a register name (prefixed with %).
+        By convention the return value will be stored in register %rax.
+    </p>
+    <p id="registers"></p>
+    <p id="instructions"></p>
+    <script>
+        document.getElementById("registers").innerText = `Available registers: ${register_names}`;
+        document.getElementById("instructions").innerText = `Available instructions: ${Object.keys(instructions)}`;
+    </script>
+
+    <div>
+        <b>Code:</b><br>
+        <textarea id="code" placeholder="Enter your code here."></textarea><br>
+        <script>
+            function run()
+            {
+                let v = parse(document.getElementById('code').value);
+                document.getElementById("result").innerText =`Result: ${v}`;
+            }
+        </script>
+        <button onclick="run()">Parse</button><br>
+        <p id="result"></p>
+    </div>
+</body>
