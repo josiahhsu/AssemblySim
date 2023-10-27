@@ -57,7 +57,7 @@ function is_register(reg)
     return reg.charAt(0) == '%' && register_names.includes(reg.substring(1));
 }
 
-function check_args(args, n)
+function check_args(args, n, regs)
 {
     if (args.length != n)
     {
@@ -65,18 +65,21 @@ function check_args(args, n)
         return false;
     }
     
-    if (!is_register(args[n - 1]))
+    for (const i of regs)
     {
-        error("Destination is not a register.")
-        return false;
+        if (!is_register(args[i]))
+        {
+            error(`argument ${i} must be a register.`)
+            return false;
+        }
     }
 
     return true;
 }
 
-function parse_args(args, n)
+function parse_args(args, n, regs)
 {
-    if (!check_args(args, n))
+    if (!check_args(args, n, regs))
         return null;
 
     let values = [];
@@ -116,10 +119,10 @@ function parse_args(args, n)
 /** operator functions **/
 
 // Generic function for handling an instruction with n arguments.
-// The last operand is assumed to be the destination register.
-function handle_op(args, n, op)
+// The regs parameter is a list of argument positions that must be registers.
+function handle_op(args, n, op, regs=[n-1])
 {
-    let values = parse_args(args, n);
+    let values = parse_args(args, n, regs);
     if (!values)
         return false;
 
@@ -171,13 +174,6 @@ function xor(args)
 
 function mov(args)
 {
-    // extra check that both operands are registers
-    if (!(is_register(args[0]) && is_register(args[1])))
-    {
-        error("Movement must be between registers.");
-        return false;
-    }
-
     function f(x){return x[0];};
-    return handle_op(args, 2, f);
+    return handle_op(args, 2, f, [0,1]);
 }
