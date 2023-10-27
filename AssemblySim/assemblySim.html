@@ -19,7 +19,9 @@
         Empty lines will be treated as no-ops and skipped.
         Operands can either be an immediate value (prefixed with $) or a register name (prefixed with %).
         By convention the return value will be stored in register %rax.
+        Register %rsp is the stack pointer, meaning the stack top is stored at the position specified by %rsp.
     </p>
+    
     <p id="registers"></p>
     <p id="instructions"></p>
     <script>
@@ -37,7 +39,7 @@
                 document.getElementById("result").innerText =`Result: ${v}`;
             }
         </script>
-        <button onclick="run()">Parse</button><br>
+        <button onclick="run()">Run program</button><br>
         <p id="result"></p>
     </div>
 </body>

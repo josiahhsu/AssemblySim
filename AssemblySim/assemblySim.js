@@ -1,11 +1,13 @@
 const register_names = ["rax","rbx","rcx","rdx","rsi","rbp","rsp","r8","r9","r10","r11","r12","r13"];
 const instructions = get_ops();
+let stack = [];
 let registers = {};
 
 function init()
 {
-    // clear all register values
+    // clear register values and the stack
     registers = {};
+    stack = [];
     for (const r of register_names)
     {
         registers[r] = 0;
@@ -117,7 +119,7 @@ function parse_args(args)
 
 // Generic function for handling an instruction with n arguments.
 // The regs parameter is a list of argument positions that must be registers.
-function handle_op(op, args, n, regs)
+function handle_op(op, args, n, regs, store)
 {
     if (!check_args(args, n, regs))
         return false;
@@ -126,15 +128,17 @@ function handle_op(op, args, n, regs)
     if (!values)
         return false;
 
-    registers[args[n-1].substring(1)] = op(values);
+    const ret = op(values);
+    if (store)
+        registers[args[n-1].substring(1)] = ret;
     return true;
 }
 
 // Wrapper for making operator functions.
 // By default assumes last argument should be a register.
-function make_op(f,n,regs=[n-1])
+function make_op(f,n,regs=[n-1],store=true)
 {
-    return function(args){ return handle_op(f, args, n, regs); };
+    return function(args){ return handle_op(f, args, n, regs, store); };
 }
 
 function get_ops()
@@ -166,7 +170,7 @@ function get_ops()
     ops["and"] = make_op( function(x){ return x[1] & x[0]; }, 2);
 
     // D | S
-    ops["or"]  = make_op( function(x){ return x[1] | x[0]; }, 2);
+    ops["or"] = make_op( function(x){ return x[1] | x[0]; }, 2);
 
     // ~D
     ops["not"] = make_op( function(x){ return ~x[0]; }, 1)
@@ -176,6 +180,12 @@ function get_ops()
 
     // D = S
     ops["mov"] = make_op( function(x){ return x[0]; }, 2, [0,1]);
+
+    // increments %rsp, then pushes S onto stack at pos %rsp
+    ops["push"] = make_op( function(x){ stack[++registers["rsp"]] = x[0]; }, 1, [], false);
+
+    // pops stack value at pos %rsp into D, then decrements %rsp
+    ops["pop"] = make_op( function(x){ return stack[registers["rsp"]--]; }, 1);
 
     return ops;
 }
