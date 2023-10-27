@@ -34,6 +34,13 @@ function parse(code)
         if (!parse_line(lines[ip]))
             return false;
         
+        // control instruction error handling
+        if (ip < 0 || ip >= len)
+        {
+            error(`Invalid jump destination [${ip}]`)
+            return false;
+        }
+
         // if instruction didn't modify the instruction pointer, increment it
         if (current == ip)
             ip++;
