@@ -2,12 +2,14 @@ const register_names = ["rax","rbx","rcx","rdx","rsi","rdi","rbp","rsp","r8","r9
 const instructions = get_ops();
 let stack = [];
 let registers = {};
+let ip = 0;
 
 function init()
 {
     // clear register values and the stack
     registers = {};
     stack = [];
+    ip = 0;
     for (const r of register_names)
     {
         registers[r] = 0;
@@ -16,17 +18,19 @@ function init()
 
 function error(str)
 {
-    alert(`ERROR: ${str}`);
+    alert(`Error on line ${ip}: ${str}`);
 }
 
 function parse(code)
 {
     init();
     let lines = code.split("\n");
-    for (const l of lines)
+    const len = lines.length;
+    while (ip < len)
     {
-        if (!parse_line(l))
+        if (!parse_line(lines[ip]))
             return false;
+        ip++;
     }
 
     // convention: return value stored in rax register
@@ -45,7 +49,7 @@ function parse_line(line)
     let op = tokens[0];
     if (!(op in instructions))
     {
-        error(`Unrecognized instruction: ${op}`);
+        error(`Unrecognized instruction [${op}]`);
         return false;
     }
     return instructions[op](tokens.slice(1));
@@ -63,7 +67,7 @@ function check_args(args, n, regs)
 {
     if (args.length != n)
     {
-        error(`Expected ${n} arguments, got ${args.length}`);
+        error(`Expected ${n} arguments, found ${args.length}`);
         return false;
     }
     
@@ -71,7 +75,7 @@ function check_args(args, n, regs)
     {
         if (!is_register(args[i]))
         {
-            error(`argument ${i} must be a register.`)
+            error(`Argument ${i} must be a register.`)
             return false;
         }
     }
@@ -93,7 +97,7 @@ function parse_args(args)
                 let number = Number(value);
                 if (isNaN(number))
                 {
-                    error(`Invalid immediate value ${a}`);
+                    error(`Invalid immediate value [${a}]`);
                     return null;
                 }
                 values.push(number);
@@ -102,13 +106,13 @@ function parse_args(args)
                 // register
                 if (!is_register(a))
                 {
-                    error(`Invalid register ${a}`);
+                    error(`Invalid register [${a}]`);
                     return null;
                 }
                 values.push(registers[value]);
                 break;
             default:
-                error("Unrecognized operand")
+                error(`Invalid operand form [${a}]`);
                 return null;
         }
     }
