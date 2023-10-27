@@ -25,8 +25,8 @@
     <p id="registers"></p>
     <p id="instructions"></p>
     <script>
-        document.getElementById("registers").innerText = `Available registers: ${register_names}`;
-        document.getElementById("instructions").innerText = `Available instructions: ${Object.keys(instructions)}`;
+        document.getElementById("registers").innerText = `Available registers: ${register_names.join(", ")}`;
+        document.getElementById("instructions").innerText = `Available instructions: ${Object.keys(instructions).join(", ")}`;
     </script>
 
     <div>
