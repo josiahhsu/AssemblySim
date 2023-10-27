@@ -182,6 +182,16 @@ function get_ops()
     // D++
     ops["inc"] = make_op( function(x){ return x[0] + 1; }, 1);
 
+    // D << S (same for both arithmetic and logical)
+    ops["sal"] = make_op( function(x){ return x[1] << x[0]; }, 2);
+    ops["shl"] = ops["sal"];
+
+    // D >> S (arithmetic, sign-extend)
+    ops["sar"] = make_op( function(x){ return x[1] >> x[0]; }, 2);
+    
+    // D >> S (logical, zero-fill)
+    ops["shr"] = make_op( function(x){ return x[1] >>> x[0]; }, 2);
+
     // D--
     ops["dec"] = make_op( function(x){ return x[0] - 1; }, 1);
 
