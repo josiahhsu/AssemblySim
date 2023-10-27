@@ -1,5 +1,5 @@
 const register_names = ["rax","rbx","rcx","rdx","rsi","rbp","rsp","r8","r9","r10","r11","r12","r13"];
-const instructions = {"add":add, "sub":sub, "mul":mul, "div":div, "mov":mov, "or":or, "and":and, "xor":xor}
+const instructions = get_ops();
 let registers = {};
 
 function init()
@@ -131,50 +131,64 @@ function handle_op(args, n, op, regs=[n-1])
     return true;
 }
 
-function add(args)
+function get_ops()
 {
-    function f(x){return x[1] + x[0];};
-    return handle_op(args, 2, f);
-}
+    let ops = {};
+    function add(args)
+    {
+        function f(x){return x[1] + x[0];};
+        return handle_op(args, 2, f);
+    }
+    ops["add"] = add;
 
-function sub(args)
-{
-    function f(x){return x[1] - x[0];};
-    return handle_op(args, 2, f);
-}
+    function sub(args)
+    {
+        function f(x){return x[1] - x[0];};
+        return handle_op(args, 2, f);
+    }
+    ops["sub"] = sub;
 
-function mul(args)
-{
-    function f(x){return x[1] * x[0];};
-    return handle_op(args, 2, f);
-}
+    function mul(args)
+    {
+        function f(x){return x[1] * x[0];};
+        return handle_op(args, 2, f);
+    }
+    ops["mul"] = mul;
 
-function div(args)
-{
-    function f(x){return Math.floor(x[1] / x[0]);};
-    return handle_op(args, 2, f);
-}
+    function div(args)
+    {
+        function f(x){return Math.floor(x[1] / x[0]);};
+        return handle_op(args, 2, f);
+    }
+    ops["div"] = div;
 
-function or(args)
-{
-    function f(x){return x[1] | x[0];};
-    return handle_op(args, 2, f);
-}
+    function or(args)
+    {
+        function f(x){return x[1] | x[0];};
+        return handle_op(args, 2, f);
+    }
+    ops["or"] = or;
 
-function and(args)
-{
-    function f(x){return x[1] & x[0];};
-    return handle_op(args, 2, f);
-}
+    function and(args)
+    {
+        function f(x){return x[1] & x[0];};
+        return handle_op(args, 2, f);
+    }
+    ops["and"] = and;
 
-function xor(args)
-{
-    function f(x){return x[1] ^ x[0];};
-    return handle_op(args, 2, f);
-}
+    function xor(args)
+    {
+        function f(x){return x[1] ^ x[0];};
+        return handle_op(args, 2, f);
+    }
+    ops["xor"] = xor;
 
-function mov(args)
-{
-    function f(x){return x[0];};
-    return handle_op(args, 2, f, [0,1]);
+    function mov(args)
+    {
+        function f(x){return x[0];};
+        return handle_op(args, 2, f, [0,1]);
+    }
+    ops["mov"] = mov;
+
+    return ops;
 }
