@@ -82,9 +82,9 @@ function is_register(reg)
 }
 
 // JavaScript bitwise operations only handle 32-bit operands
-function is_32bit(x)
+function to_32bit(x)
 {
-    return (x & ~0) == x;
+    return x & ~0;
 }
 
 function check_args(args, n, regs)
@@ -119,7 +119,7 @@ function parse_args(args)
             case '$':
                 // immediate - value must be a positive 32-bit number
                 let n = Number.parseInt(value);
-                if (isNaN(n) || n < 0 || !is_32bit(n))
+                if (isNaN(n) || n < 0 || to_32bit(n) != n)
                 {
                     error(`Immediate value [${a}] is not a positive 32-bit integer`);
                     return null;
@@ -157,7 +157,7 @@ function handle_op(op, args, n, regs, store)
         return false;
 
     // limit result to 32-bit value
-    const ret = op(values) & ~0;
+    const ret = to_32bit(op(values));
     if (store)
         registers[args[n-1].substring(1)] = ret;
     return true;
