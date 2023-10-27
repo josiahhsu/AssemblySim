@@ -134,61 +134,54 @@ function handle_op(args, n, op, regs=[n-1])
 function get_ops()
 {
     let ops = {};
-    function add(args)
+
+    ops["add"] = function(args)
     {
         function f(x){return x[1] + x[0];};
         return handle_op(args, 2, f);
-    }
-    ops["add"] = add;
+    };
 
-    function sub(args)
+    ops["sub"] = function(args)
     {
         function f(x){return x[1] - x[0];};
         return handle_op(args, 2, f);
-    }
-    ops["sub"] = sub;
+    };
 
-    function mul(args)
+    ops["mul"] = function(args)
     {
         function f(x){return x[1] * x[0];};
         return handle_op(args, 2, f);
-    }
-    ops["mul"] = mul;
+    };
 
-    function div(args)
+    ops["div"] = function(args)
     {
         function f(x){return Math.floor(x[1] / x[0]);};
         return handle_op(args, 2, f);
     }
-    ops["div"] = div;
-
-    function or(args)
+    
+    ops["or"] = function(args)
     {
         function f(x){return x[1] | x[0];};
         return handle_op(args, 2, f);
-    }
-    ops["or"] = or;
+    };
 
-    function and(args)
+    ops["and"] = function(args)
     {
         function f(x){return x[1] & x[0];};
         return handle_op(args, 2, f);
-    }
-    ops["and"] = and;
+    };
 
-    function xor(args)
+    ops["xor"] = function(args)
     {
         function f(x){return x[1] ^ x[0];};
         return handle_op(args, 2, f);
-    }
-    ops["xor"] = xor;
+    };
 
-    function mov(args)
+    ops["mov"] = function(args)
     {
         function f(x){return x[0];};
         return handle_op(args, 2, f, [0,1]);
-    }
-    ops["mov"] = mov;
+    };
 
     return ops;
 }
