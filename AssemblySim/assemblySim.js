@@ -81,6 +81,12 @@ function is_register(reg)
     return reg.charAt(0) == '%' && register_names.includes(reg.substring(1));
 }
 
+// JavaScript bitwise operations only handle 32-bit operands
+function is_32bit(x)
+{
+    return (x & ~0) == x;
+}
+
 function check_args(args, n, regs)
 {
     if (args.length != n)
@@ -111,17 +117,17 @@ function parse_args(args)
         switch(id)
         {
             case '$':
-                // immediate          
-                let number = Number(value);
-                if (isNaN(number))
+                // immediate - value must be a positive 32-bit number
+                let n = Number.parseInt(value);
+                if (isNaN(n) || n < 0 || !is_32bit(n))
                 {
-                    error(`Invalid immediate value [${a}]`);
+                    error(`Immediate value [${a}] is not a positive 32-bit integer`);
                     return null;
                 }
-                values.push(number);
+                values.push(n);
                 break;
             case '%':
-                // register
+                // register - must be a valid register name
                 if (!is_register(a))
                 {
                     error(`Invalid register [${a}]`);
@@ -150,7 +156,8 @@ function handle_op(op, args, n, regs, store)
     if (!values)
         return false;
 
-    const ret = op(values);
+    // limit result to 32-bit value
+    const ret = op(values) & ~0;
     if (store)
         registers[args[n-1].substring(1)] = ret;
     return true;
