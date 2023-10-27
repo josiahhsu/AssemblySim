@@ -134,7 +134,7 @@ function handle_op(op, args, n, regs)
 // By default assumes last argument should be a register.
 function make_op(f,n,regs=[n-1])
 {
-    return function(args){ return handle_op(f, args, n, regs) };
+    return function(args){ return handle_op(f, args, n, regs); };
 }
 
 function get_ops()
@@ -152,12 +152,24 @@ function get_ops()
 
     // D / S
     ops["div"] = make_op( function(x){ return Math.floor(x[1] / x[0]); }, 2);
-    
-    // D | S
-    ops["or"]  = make_op( function(x){ return x[1] | x[0]; }, 2);
+
+    // D++
+    ops["inc"] = make_op( function(x){ return x[0] + 1; }, 1);
+
+    // D--
+    ops["dec"] = make_op( function(x){ return x[0] - 1; }, 1);
+
+    // -D
+    ops["neg"] = make_op( function(x){ return -1*x[0]; }, 1);
 
     // D & S
     ops["and"] = make_op( function(x){ return x[1] & x[0]; }, 2);
+
+    // D | S
+    ops["or"]  = make_op( function(x){ return x[1] | x[0]; }, 2);
+
+    // ~D
+    ops["not"] = make_op( function(x){ return ~x[0]; }, 1)
 
     // D ^ S
     ops["xor"] = make_op( function(x){ return x[1] ^ x[0]; }, 2);
