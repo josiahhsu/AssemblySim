@@ -45,9 +45,15 @@ function parse(code)
         if (current == ip)
             ip++;
     }
+    return true;
+}
 
-    // convention: return value stored in rax register
-    return registers["rax"];
+function get_parse_result(code)
+{
+    // if parsing successful, get return value stored in rax register
+    if (parse(code))
+        return String(registers["rax"]);
+    return "ERROR"
 }
 
 function parse_line(line)
