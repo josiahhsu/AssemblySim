@@ -28,9 +28,15 @@ function parse(code)
     const len = lines.length;
     while (ip < len)
     {
+        // store current instruction pointer value
+        let current = ip;
+        
         if (!parse_line(lines[ip]))
             return false;
-        ip++;
+        
+        // if instruction didn't modify the instruction pointer, increment it
+        if (current == ip)
+            ip++;
     }
 
     // convention: return value stored in rax register
@@ -54,7 +60,6 @@ function parse_line(line)
     }
     return instructions[op](tokens.slice(1));
 }
-
 
 /** operand parsing **/
 
@@ -190,6 +195,9 @@ function get_ops()
 
     // pops stack value at pos %rsp into D, then decrements %rsp
     ops["pop"] = make_op( function(x){ return stack[registers["rsp"]--]; }, 1);
+    
+    // jumps to line specified by operand
+    ops["jmp"] = make_op( function(x){ ip = x[0]; }, 1, [], false);
 
     return ops;
 }
