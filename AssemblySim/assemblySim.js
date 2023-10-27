@@ -77,11 +77,8 @@ function check_args(args, n, regs)
     return true;
 }
 
-function parse_args(args, n, regs)
+function parse_args(args)
 {
-    if (!check_args(args, n, regs))
-        return null;
-
     let values = [];
     for (const a of args)
     {
@@ -120,9 +117,13 @@ function parse_args(args, n, regs)
 
 // Generic function for handling an instruction with n arguments.
 // The regs parameter is a list of argument positions that must be registers.
+// By default assumes the last argument must be a register.
 function handle_op(args, n, op, regs=[n-1])
 {
-    let values = parse_args(args, n, regs);
+    if (!check_args(args, n, regs))
+        return false;
+
+    let values = parse_args(args);
     if (!values)
         return false;
 
