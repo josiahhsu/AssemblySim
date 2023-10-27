@@ -117,8 +117,7 @@ function parse_args(args)
 
 // Generic function for handling an instruction with n arguments.
 // The regs parameter is a list of argument positions that must be registers.
-// By default assumes the last argument must be a register.
-function handle_op(args, n, op, regs=[n-1])
+function handle_op(op, args, n, regs)
 {
     if (!check_args(args, n, regs))
         return false;
@@ -131,57 +130,40 @@ function handle_op(args, n, op, regs=[n-1])
     return true;
 }
 
+// Wrapper for making operator functions.
+// By default assumes last argument should be a register.
+function make_op(f,n,regs=[n-1])
+{
+    return function(args){ return handle_op(f, args, n, regs) };
+}
+
 function get_ops()
 {
     let ops = {};
 
-    ops["add"] = function(args)
-    {
-        function f(x){return x[1] + x[0];};
-        return handle_op(args, 2, f);
-    };
+    // D + S
+    ops["add"] = make_op( function(x){ return x[1] + x[0]; }, 2);
+ 
+    // D - S
+    ops["sub"] = make_op( function(x){ return x[1] - x[0]; }, 2);
 
-    ops["sub"] = function(args)
-    {
-        function f(x){return x[1] - x[0];};
-        return handle_op(args, 2, f);
-    };
+    // D * S
+    ops["mul"] = make_op( function(x){ return x[1] * x[0]; }, 2);
 
-    ops["mul"] = function(args)
-    {
-        function f(x){return x[1] * x[0];};
-        return handle_op(args, 2, f);
-    };
-
-    ops["div"] = function(args)
-    {
-        function f(x){return Math.floor(x[1] / x[0]);};
-        return handle_op(args, 2, f);
-    }
+    // D / S
+    ops["div"] = make_op( function(x){ return Math.floor(x[1] / x[0]); }, 2);
     
-    ops["or"] = function(args)
-    {
-        function f(x){return x[1] | x[0];};
-        return handle_op(args, 2, f);
-    };
+    // D | S
+    ops["or"]  = make_op( function(x){ return x[1] | x[0]; }, 2);
 
-    ops["and"] = function(args)
-    {
-        function f(x){return x[1] & x[0];};
-        return handle_op(args, 2, f);
-    };
+    // D & S
+    ops["and"] = make_op( function(x){ return x[1] & x[0]; }, 2);
 
-    ops["xor"] = function(args)
-    {
-        function f(x){return x[1] ^ x[0];};
-        return handle_op(args, 2, f);
-    };
+    // D ^ S
+    ops["xor"] = make_op( function(x){ return x[1] ^ x[0]; }, 2);
 
-    ops["mov"] = function(args)
-    {
-        function f(x){return x[0];};
-        return handle_op(args, 2, f, [0,1]);
-    };
+    // D = S
+    ops["mov"] = make_op( function(x){ return x[0]; }, 2, [0,1]);
 
     return ops;
 }
