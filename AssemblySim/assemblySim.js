@@ -30,13 +30,20 @@ function error(str)
     alert(`Error on line ${ip}: ${str}`);
 }
 
-function parse(code)
+function parse(code, maxIters = 10000)
 {
     init();
+    let count = 0;
     let lines = code.split("\n");
     const len = lines.length;
     while (ip < len)
     {
+        if (count > maxIters)
+        {
+            error(`Program exceeded ${maxIters} iterations. Terminating.`);
+            return false;
+        }
+
         // store current instruction pointer value
         let current = ip;
         
@@ -53,6 +60,8 @@ function parse(code)
         // if instruction didn't modify the instruction pointer, increment it
         if (current == ip)
             ip++;
+
+        count++;
     }
     return true;
 }
