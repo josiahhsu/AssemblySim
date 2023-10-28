@@ -1,28 +1,23 @@
-function test(name, code, expected)
+function run_all()
 {
-    console.log(`Running test [${name}]`);
-    const result = get_parse_result(code);
-    if (result != expected)
-    {
-        console.log(`FAILED: expected ${expected}, got ${result}`);
-        return false;
-    }
-    console.log(`Passed!`);
-    return true;
+    run_tests([result_tests(), error_tests()]);
 }
 
-function run_tests()
+function run_tests(test_suites)
 {
     debug = true;
 
-    let tests = get_tests();
     let failures = [];
-    for (const t of tests)
+    for (const s of test_suites)
     {
-        if (!test(t[0], t[1], t[2]))
-            failures.push(t[0])
+        const test_function = s[0];
+        const tests = s[1];
+        for (const t of tests)
+        {
+            if (!test_function(t))
+                failures.push(t[0])
+        }
     }
-
     if (failures.length == 0)
     {
         alert("All tests passed!")
@@ -36,9 +31,31 @@ function run_tests()
     debug = false;
 }
 
-function get_tests()
+/* 
+ * Test suite functions
+ * Each function returns a test suite consistion of a 
+ * test function and the tests to run it on.
+ */
+
+function result_tests()
 {
-    let tests = [
+    function f(params)
+    {
+        const name = params[0];
+        const code = params[1];
+        const expected = params[2];
+        console.log(`Running test [${name}]`);
+        const result = get_parse_result(code);
+        if (result != expected)
+        {
+            console.log(`FAILED: expected ${expected}, got ${result}`);
+            return false;
+        }
+        console.log(`Passed!`);
+        return true;
+    }
+
+    const tests = [
         // instructions
         ["Add immediate", "add $8 %rax", "8"],
         ["Add register", "add $8 %rsi\n add %rsi %rax", "8"],
@@ -64,18 +81,39 @@ function get_tests()
         ["Xor", "add $123791 %rax\n xor %rax %rax", "0"],
         ["Mov", "add $8 %rsi\n mov %rsi %rax", "8"],
         ["Push-pop", "push $30\n pop %rax", "30", "30"],
+    ];
 
-        // error checking
-        ["Bad instruction", "dad $8 %rax", "ERROR"],
-        ["No operands", "add", "ERROR"],
-        ["Not enough operands", "add $1", "ERROR"],
-        ["Too many operands", "add $1 %rax %rax", "ERROR"],
-        ["Invalid operands", "add 1 %rax", "ERROR"],
-        ["Invalid immediate", "add $one %rax", "ERROR"],
-        ["Negative immediate", "add $-1 %rax", "ERROR"],
-        ["Floating point immediate", "add $0.1 %rax", "ERROR"],
-        ["Invalid register", "add $1 %foo", "ERROR"],
-    ]
+    return [f, tests];
+}
 
-    return tests;
+function error_tests()
+{
+    function f(params)
+    {
+        const name = params[0];
+        const code = params[1]
+        console.log(`Running test [${name}]`);
+        const result = get_parse_result(code);
+        if (result != "ERROR")
+        {
+            console.log(`FAILED: expected error, got ${result}`);
+            return false;
+        }
+        console.log(`Passed!`);
+        return true;
+    }
+
+    const tests = [
+        ["Bad instruction", "dad $8 %rax"],
+        ["No operands", "add"],
+        ["Not enough operands", "add $1"],
+        ["Too many operands", "add $1 %rax %rax"],
+        ["Invalid operands", "add 1 %rax"],
+        ["Invalid immediate", "add $one %rax"],
+        ["Negative immediate", "add $-1 %rax"],
+        ["Floating point immediate", "add $0.1 %rax"],
+        ["Invalid register", "add $1 %foo"],
+    ];
+
+    return [f, tests];
 }
