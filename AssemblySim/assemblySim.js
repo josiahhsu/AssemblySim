@@ -34,7 +34,7 @@ function parse(code, maxIters = 10000)
 {
     init();
     let count = 0;
-    let lines = code.split("\n");
+    const lines = code.split("\n");
     const len = lines.length;
     while (ip < len)
     {
@@ -45,7 +45,7 @@ function parse(code, maxIters = 10000)
         }
 
         // store current instruction pointer value
-        let current = ip;
+        const current = ip;
         
         if (!parse_line(lines[ip]))
             return false;
@@ -82,8 +82,8 @@ function parse_line(line)
     if(!line)
         return true;
     
-    let tokens = line.split(/\s+/);
-    let op = tokens[0];
+    const tokens = line.split(/\s+/);
+    const op = tokens[0];
     if (!(op in instructions))
     {
         error(`Unrecognized instruction [${op}]`);
@@ -136,7 +136,7 @@ function parse_args(args)
         {
             case '$':
                 // immediate - value must be a positive 32-bit number
-                let n = Number.parseInt(value);
+                const n = Number.parseInt(value);
                 if (isNaN(n) || n < 0 || to_32bit(n) != n)
                 {
                     error(`Immediate value [${a}] is not a positive 32-bit integer`);
@@ -171,7 +171,7 @@ function handle_op(op, args, n, flag, regs, store)
     if (!check_args(args, n, regs))
         return false;
 
-    let values = parse_args(args);
+    const values = parse_args(args);
     if (!values)
         return false;
 
@@ -214,10 +214,10 @@ function make_arith(f, n, regs=[n-1], store=true)
     {
         result_flags(result);
         // msb of both operands differs from msb of result
-        let o1 = operands[0];
-        let o2 = (operands.length == 2)? operands[1] : o1;
-        let m1 = msb(o1);
-        let m2 = msb(o2);
+        const o1 = operands[0];
+        const o2 = (operands.length == 2)? operands[1] : o1;
+        const m1 = msb(o1);
+        const m2 = msb(o2);
         flags["OF"] = (m1 == m2) && (m1 != m2)
     }
     return make_op(f, n, arith_flags, regs, store)
