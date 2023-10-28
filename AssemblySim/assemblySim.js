@@ -5,6 +5,7 @@ let stack = [];
 let registers = {};
 let flags = {};
 let ip = 0;
+debug = false; // used to disable alerts during testing
 
 function init()
 {
@@ -27,7 +28,8 @@ function init()
 
 function error(str)
 {
-    alert(`Error on line ${ip}: ${str}`);
+    if (!debug)
+        alert(`Error on line ${ip}: ${str}`);
 }
 
 function parse(code, maxIters = 10000)
