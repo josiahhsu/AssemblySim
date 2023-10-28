@@ -1,15 +1,15 @@
 function test(name, code, expected)
+{
+    console.log(`Running test [${name}]`);
+    const result = get_parse_result(code);
+    if (result != expected)
     {
-        console.log(`Running test [${name}]`);
-        const result = get_parse_result(code);
-        if (result != expected)
-        {
-            console.log(`FAILED: expected ${expected}, got ${result}`);
-            return false;
-        }
-        console.log(`Passed!`);
-        return true;
+        console.log(`FAILED: expected ${expected}, got ${result}`);
+        return false;
     }
+    console.log(`Passed!`);
+    return true;
+}
 
 function run_tests()
 {
