@@ -73,6 +73,7 @@ function get_tests()
         ["Invalid operands", "add 1 %rax", "ERROR"],
         ["Invalid immediate", "add $one %rax", "ERROR"],
         ["Negative immediate", "add $-1 %rax", "ERROR"],
+        ["Floating point immediate", "add $0.1 %rax", "ERROR"],
         ["Invalid register", "add $1 %foo", "ERROR"],
     ]
 

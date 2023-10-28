@@ -137,9 +137,9 @@ function parse_args(args)
         switch(id)
         {
             case '$':
-                // immediate - value must be a positive 32-bit number
+                // immediate - value must be a positive 32-bit integer
                 const n = Number.parseInt(value);
-                if (isNaN(n) || n < 0 || to_32bit(n) != n)
+                if (isNaN(n) || n < 0 || to_32bit(n) != n || Number(value) != n)
                 {
                     error(`Immediate value [${a}] is not a positive 32-bit integer`);
                     return null;
