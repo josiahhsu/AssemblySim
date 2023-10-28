@@ -252,6 +252,9 @@ function get_ops()
 
     // D++
     ops["inc"] = make_arith( function(x){ return x[0] + 1; }, 1);
+    
+    // D--
+    ops["dec"] = make_arith( function(x){ return x[0] - 1; }, 1);
 
     // D << S (same for both arithmetic and logical)
     ops["sal"] = make_logic( function(x){ return x[1] << x[0]; }, 2);
@@ -262,9 +265,6 @@ function get_ops()
     
     // D >> S (logical, zero-fill)
     ops["shr"] = make_logic( function(x){ return x[1] >>> x[0]; }, 2);
-
-    // D--
-    ops["dec"] = make_arith( function(x){ return x[0] - 1; }, 1);
 
     // -D
     ops["neg"] = make_logic( function(x){ return -1*x[0]; }, 1);
