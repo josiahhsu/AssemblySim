@@ -91,6 +91,10 @@ function result_tests()
         "Xor": ["add $123791 %rax\n xor %rax %rax", "0"],
         "Mov": ["add $8 %rsi\n mov %rsi %rax", "8"],
         "Push-pop": ["push $30\n pop %rax", "30"],
+        "jle": ["add $10 %rax\n dec %rax\n cmp %rax $5\n jle $1", "4"],
+        "jl": ["add $10 %rax\n dec %rax\n cmp %rax $5\n jl $1", "5"],
+        "jge": ["inc %rax\n cmp %rax $5\n jge $0", "6"],
+        "jg": ["inc %rax\n cmp %rax $5\n jg $0", "5"],
     };
 
     return [f, tests];
