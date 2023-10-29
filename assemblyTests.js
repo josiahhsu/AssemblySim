@@ -92,14 +92,14 @@ function result_tests()
         "Mov": ["add $8 %rsi\n mov %rsi %rax", "8"],
         "Push-pop": ["push $30\n pop %rax", "30"],
         "jmp": ["jmp $2\n add $100 %rax\n add $5 %rax", "5"],
-        "je": ["cmp $1 $1\n je $3\n add $1 %rax\n cmp $1 $2\n je $6\n add $10 %rax\n add $100 %rax", "110"],
-        "jne": ["cmp $1 $1\n jne $3\n add $1 %rax\n cmp $1 $2\n jne $6\n add $10 %rax\n add $100 %rax", "101"],
-        "js": ["cmp $2 $1\n js $3\n add $1 %rax\n cmp $1 $2\n js $6\n add $10 %rax\n add $100 %rax", "110"],
-        "jns": ["cmp $2 $1\n jns $3\n add $1 %rax\n cmp $1 $2\n jns $6\n add $10 %rax\n add $100 %rax", "101"],
-        "jg": ["cmp $0 $1\n jg $3\n add $1 %rax\n cmp $1 $1\n jg $6\n add $10 %rax\n cmp $2 $1\n jg $9\n add $100 %rax\n add $1000 %rax", "1110"],
-        "jge": ["cmp $0 $1\n jge $3\n add $1 %rax\n cmp $1 $1\n jge $6\n add $10 %rax\n cmp $2 $1\n jge $9\n add $100 %rax\n add $1000 %rax", "1100"],
-        "jl": ["cmp $0 $1\n jl $3\n add $1 %rax\n cmp $1 $1\n jl $6\n add $10 %rax\n cmp $2 $1\n jl $9\n add $100 %rax\n add $1000 %rax", "1011"],
-        "jle": ["cmp $0 $1\n jle $3\n add $1 %rax\n cmp $1 $1\n jle $6\n add $10 %rax\n cmp $2 $1\n jle $9\n add $100 %rax\n add $1000 %rax", "1001"],
+        "je": ["cmp $1 $1\n je $3\n add $10 %rax\n cmp $1 $2\n je $6\n add $1 %rax\n add $200 %rax", "201"],
+        "jne": ["cmp $1 $1\n jne $3\n add $10 %rax\n cmp $1 $2\n jne $6\n add $1 %rax\n add $200 %rax", "210"],
+        "js": ["cmp $2 $1\n js $3\n add $10 %rax\n cmp $1 $2\n js $6\n add $1 %rax\n add $200 %rax", "201"],
+        "jns": ["cmp $2 $1\n jns $3\n add $10 %rax\n cmp $1 $2\n jns $6\n add $1 %rax\n add $200 %rax", "210"],
+        "jg": ["cmp $0 $1\n jg $3\n add $100 %rax\n cmp $1 $1\n jg $6\n add $10 %rax\n cmp $2 $1\n jg $9\n add $1 %rax\n add $3000 %rax", "3011"],
+        "jge": ["cmp $0 $1\n jge $3\n add $100 %rax\n cmp $1 $1\n jge $6\n add $10 %rax\n cmp $2 $1\n jge $9\n add $1 %rax\n add $3000 %rax", "3001"],
+        "jl": ["cmp $0 $1\n jl $3\n add $100 %rax\n cmp $1 $1\n jl $6\n add $10 %rax\n cmp $2 $1\n jl $9\n add $1 %rax\n add $3000 %rax", "3110"],
+        "jle": ["cmp $0 $1\n jle $3\n add $100 %rax\n cmp $1 $1\n jle $6\n add $10 %rax\n cmp $2 $1\n jle $9\n add $1 %rax\n add $3000 %rax", "3100"],
     };
 
     return [f, tests];
