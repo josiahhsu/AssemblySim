@@ -134,6 +134,7 @@ function flag_tests()
         "cmp equal": ["cmp $1 $1", ["ZF"]],
         "cmp greater": ["cmp $2 $1", ["SF"]],
         "cmp less": ["cmp $1 $2", [""]],
+        "cmp OF": ["add $1 %r10\n shl $31 %r10\n cmp $1 %r10", ["OF"]],
         "test positive": ["test $1 $1", [""]],
         "test zero": ["test $1 $0", ["ZF"]],
         "test negative": ["not %r9\n not %r10\n test %r9 %r10", ["SF"]],

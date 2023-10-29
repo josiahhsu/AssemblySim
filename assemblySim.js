@@ -101,9 +101,16 @@ function is_register(reg)
     return reg.charAt(0) == '%' && register_names.includes(reg.substring(1));
 }
 
-// JavaScript bitwise operations only handle 32-bit operands
 function to_32bit(x)
 {
+    /*
+     * This takes advantage of two quirks of JavaScript:
+     * 1. Bitwise operations only handle 32-bit operands.
+     * 2. Javascript actually stores values as 64-bit floats.
+     * The following will convert x to a 32-bit int, ensure those 32 
+     * bits are unchanged, and then convert it back to 64 bits,
+     * effectively restricting the value of x to a 32-bit range.
+     */
     return x & ~0;
 }
 
@@ -177,15 +184,15 @@ function handle_op(op, args, n, flag, regs, store)
     if (!values)
         return false;
 
-    // limit result to 32-bit value
-    const ret = to_32bit(op(values));
+    // calculate raw result
+    const raw = op(values);
 
     // set condition codes
-    flag(values, ret);
+    flag(raw);
 
-    // store if needed
+    // convert to 32-bit result and store if needed
     if (store)
-        registers[args[n-1].substring(1)] = ret;
+        registers[args[n-1].substring(1)] = to_32bit(raw);
     
     return true;
 }
@@ -202,32 +209,33 @@ function msb(x)
     return (x >> 31) & 1;
 }
 
-function result_flags(ret)
+function result_flags(raw)
 {
-    flags["ZF"] = (ret == 0);
-    flags["SF"] = (msb(ret) == 1);
+    const result = to_32bit(raw);
+    flags["ZF"] = (result == 0);
+    flags["SF"] = (msb(result) == 1);
 }
 
 /** wrappers for functions based on flags they set **/
 
 function make_arith(f, n, regs=[n-1], store=true)
 {
-    function arith_flags(operands, result)
+    function arith_flags(raw)
     {
-        result_flags(result);
-        // msb of both operands differs from msb of result
-        const o1 = operands[0];
-        const o2 = (operands.length == 2)? operands[1] : o1;
-        const m1 = msb(o1);
-        const m2 = msb(o2);
-        flags["OF"] = (m1 == m2) && (m1 != m2)
+        result_flags(raw);
+        /*
+         * JavaScript's weird 64-bit storage/32-bit bitwise ops
+         * restriction means we can check for overflow simply
+         * by seeing if the raw result is within the 32-bit range.
+         */ 
+        flags["OF"] = (to_32bit(raw) != raw);
     }
     return make_op(f, n, arith_flags, regs, store)
 }
 
 function make_logic(f, n, regs=[n-1],store=true)
 {
-    function logic_flags(operands, result)
+    function logic_flags(result)
     {
         result_flags(result);
         flags["OF"] = false;
