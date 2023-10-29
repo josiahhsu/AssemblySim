@@ -97,8 +97,10 @@ function result_tests()
         "js": ["cmp $2 $1\n js $3\n add $10 %rax\n cmp $1 $2\n js $6\n add $1 %rax\n add $200 %rax", "201"],
         "jns": ["cmp $2 $1\n jns $3\n add $10 %rax\n cmp $1 $2\n jns $6\n add $1 %rax\n add $200 %rax", "210"],
         "jg": ["cmp $0 $1\n jg $3\n add $100 %rax\n cmp $1 $1\n jg $6\n add $10 %rax\n cmp $2 $1\n jg $9\n add $1 %rax\n add $3000 %rax", "3011"],
+        "jg OF": ["add $1 %r10\n shl $31 %r10\n cmp $1 %r10\n jg $5\n add $1 %rax\n add $10 %rax", "11"],
         "jge": ["cmp $0 $1\n jge $3\n add $100 %rax\n cmp $1 $1\n jge $6\n add $10 %rax\n cmp $2 $1\n jge $9\n add $1 %rax\n add $3000 %rax", "3001"],
         "jl": ["cmp $0 $1\n jl $3\n add $100 %rax\n cmp $1 $1\n jl $6\n add $10 %rax\n cmp $2 $1\n jl $9\n add $1 %rax\n add $3000 %rax", "3110"],
+        "jl OF": ["add $1 %r10\n shl $31 %r10\n cmp $1 %r10\n jl $5\n add $1 %rax\n add $10 %rax", "10"],
         "jle": ["cmp $0 $1\n jle $3\n add $100 %rax\n cmp $1 $1\n jle $6\n add $10 %rax\n cmp $2 $1\n jle $9\n add $1 %rax\n add $3000 %rax", "3100"],
     };
 
