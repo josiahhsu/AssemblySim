@@ -111,7 +111,7 @@ function to_32bit(x)
      * bits are unchanged, and then convert it back to 64 bits,
      * effectively restricting the value of x to a 32-bit range.
      */
-    return x & ~0;
+    return x | 0;
 }
 
 function check_args(args, n, regs)
