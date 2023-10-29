@@ -1,6 +1,6 @@
 function run_all()
 {
-    run_tests([result_tests(), error_tests()]);
+    run_tests([result_tests(), error_tests(), flag_tests()]);
 }
 
 function run_tests(test_suites)
@@ -38,6 +38,25 @@ function test_equal(actual, expected)
     const equal = (actual == expected);
     console.log(equal? `Passed!` : `FAILED: expected ${expected}, got ${actual}`);
     return equal;    
+}
+
+function flags_equal(expected)
+{
+    let equal = true;
+    let actual = [];
+    for (const f of flag_names)
+    {
+        // build expected array
+        if (flags[f])
+            actual.push(f);
+
+        // check if expected flag matches actual flag
+        const x = (expected.includes(f));
+        if (x != flags[f])
+            equal = false;
+    }
+    console.log(equal? `Passed!` : `FAILED: expected ${expected}, got ${actual}`);
+    return equal;
 }
 
 function result_tests()
@@ -94,6 +113,27 @@ function error_tests()
         "Negative immediate": ["add $-1 %rax"],
         "Floating point immediate": ["add $0.1 %rax"],
         "Invalid register": ["add $1 %foo"],
+    };
+
+    return [f, tests];
+}
+
+function flag_tests()
+{
+    function f(params)
+    {
+        if (get_parse_result(params[0]) == "ERROR")
+            return false;
+        return flags_equal(params[1]);
+    }
+
+    const tests = {
+        "cmp equal": ["cmp $1 $1", ["ZF"]],
+        "cmp greater": ["cmp $2 $1", ["SF"]],
+        "cmp less": ["cmp $1 $2", [""]],
+        "test positive": ["test $1 $1", ""],
+        "test zero": ["test $1 $0", "ZF"],
+        "test negative": ["not %r9\n not %r10\n test %r9 %r10", "SF"],
     };
 
     return [f, tests];
