@@ -305,7 +305,7 @@ function get_ops()
     ops["cmp"] = make_arith( function(x){ return x[1] - x[0]; }, 2, [], false);
 
     // compares flags based on S2 & S1
-    ops["test"] = make_arith( function(x){ return x[1] & x[0]; }, 2, [], false);
+    ops["test"] = make_logic( function(x){ return x[1] & x[0]; }, 2, [], false);
 
     // jumps to line specified by operand
     ops["jmp"] = make_jump( function(){ return true; });
