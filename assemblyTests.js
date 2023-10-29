@@ -123,7 +123,10 @@ function flag_tests()
     function f(params)
     {
         if (get_parse_result(params[0]) == "ERROR")
+        {
+            console.log("FAILED: error in program execution")
             return false;
+        }
         return flags_equal(params[1]);
     }
 
