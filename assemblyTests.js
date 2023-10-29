@@ -96,10 +96,10 @@ function result_tests()
         "jne": ["cmp $1 $1\n jne $3\n add $1 %rax\n cmp $1 $2\n jne $6\n add $10 %rax\n add $100 %rax", "101"],
         "js": ["cmp $2 $1\n js $3\n add $1 %rax\n cmp $1 $2\n js $6\n add $10 %rax\n add $100 %rax", "110"],
         "jns": ["cmp $2 $1\n jns $3\n add $1 %rax\n cmp $1 $2\n jns $6\n add $10 %rax\n add $100 %rax", "101"],
-        "jle": ["add $10 %rax\n dec %rax\n cmp %rax $5\n jle $1", "4"],
-        "jl": ["add $10 %rax\n dec %rax\n cmp %rax $5\n jl $1", "5"],
-        "jge": ["inc %rax\n cmp %rax $5\n jge $0", "6"],
-        "jg": ["inc %rax\n cmp %rax $5\n jg $0", "5"],
+        "jg": ["cmp $0 $1\n jg $3\n add $1 %rax\n cmp $1 $1\n jg $6\n add $10 %rax\n cmp $2 $1\n jg $9\n add $100 %rax\n add $1000 %rax", "1110"],
+        "jge": ["cmp $0 $1\n jge $3\n add $1 %rax\n cmp $1 $1\n jge $6\n add $10 %rax\n cmp $2 $1\n jge $9\n add $100 %rax\n add $1000 %rax", "1100"],
+        "jl": ["cmp $0 $1\n jl $3\n add $1 %rax\n cmp $1 $1\n jl $6\n add $10 %rax\n cmp $2 $1\n jl $9\n add $100 %rax\n add $1000 %rax", "1011"],
+        "jle": ["cmp $0 $1\n jle $3\n add $1 %rax\n cmp $1 $1\n jle $6\n add $10 %rax\n cmp $2 $1\n jle $9\n add $100 %rax\n add $1000 %rax", "1001"],
     };
 
     return [f, tests];
