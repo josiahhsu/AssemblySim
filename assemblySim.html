@@ -33,8 +33,21 @@
 
     <div>
         <b>Code:</b><br>
-        <textarea id="code" placeholder="Enter your code here."></textarea><br>
+        <div id="editor">
+            <div id="line-numbers"><span></span></div>
+            <textarea id="code" placeholder="Enter your code here."></textarea>
+        </div><br>
         <script>
+            function add_line_nums()
+            {
+                const code = document.getElementById('code');
+                const lineNumbers = document.getElementById('line-numbers');
+                const numberOfLines = code.value.split('\n').length;
+                lineNumbers.innerHTML = Array(numberOfLines).fill('<span></span>').join('');
+            }
+            add_line_nums();
+            code.addEventListener('input', add_line_nums);
+
             function run()
             {
                 let v = get_parse_result(document.getElementById('code').value);

@@ -1,6 +1,34 @@
 @import url("/github-pages/main.css");
 
+#editor{
+    display: inline-flex;
+    gap: 10px;
+    font-family: monospace;
+    line-height: 21px;
+    height: 200px;
+    overflow: auto;
+    counter-reset: linenumber -1;
+}
+
 textarea{
-    width: 25em;
-    height: 8em;
+    width: 300px;
+    height: 9999px;
+    line-height: 21px;
+    overflow-y: hidden;
+    resize: none;
+}
+
+#line-numbers{
+    padding: 4px 0px;
+    width: 25px;
+    text-align: right;
+}
+
+#line-numbers span {
+    counter-increment: linenumber;
+}
+  
+#line-numbers span::before {
+    content: counter(linenumber);
+    display: block;
 }
