@@ -18,7 +18,7 @@ function init()
     // clear flag values
     for (const f of flag_names)
     {
-        flags[f] = false;
+        flags[f] = 0;
     }
 
     // reset stack and instruction pointer
@@ -212,8 +212,8 @@ function msb(x)
 function result_flags(raw)
 {
     const result = to_32bit(raw);
-    flags["ZF"] = (result == 0);
-    flags["SF"] = (msb(result) == 1);
+    flags["ZF"] = (result == 0)? 1 : 0;
+    flags["SF"] = msb(result);
 }
 
 /** wrappers for functions based on flags they set **/
@@ -228,7 +228,7 @@ function make_arith(f, n, regs=[n-1], store=true)
          * restriction means we can check for overflow simply
          * by seeing if the raw result is within the 32-bit range.
          */ 
-        flags["OF"] = (to_32bit(raw) != raw);
+        flags["OF"] = (to_32bit(raw) == raw)? 0 : 1;
     }
     return make_op(f, n, arith_flags, regs, store)
 }
@@ -238,7 +238,7 @@ function make_logic(f, n, regs=[n-1],store=true)
     function logic_flags(result)
     {
         result_flags(result);
-        flags["OF"] = false;
+        flags["OF"] = 0;
     }
     return make_op(f, n, logic_flags, regs, store)
 }
@@ -250,7 +250,7 @@ function make_none(f,n,regs=[n-1], store=true)
 
 function make_jump(cond)
 {
-    return make_none(function(x){ if (cond()) ip = x[0];}, 1, [], false);
+    return make_none(function(x){ if ((cond() & 1) == 1) ip = x[0];}, 1, [], false);
 }
 
 function get_ops()
@@ -322,25 +322,25 @@ function get_ops()
     ops["je"] = make_jump( function(){ return flags["ZF"]; } );
 
     // jump condition: ~ZF
-    ops["jne"] = make_jump( function(){ return !flags["ZF"]; } );
+    ops["jne"] = make_jump( function(){ return ~flags["ZF"]; } );
 
     // jump condition: SF
     ops["js"] = make_jump( function(){ return flags["SF"]; } );
 
     // jump condition: ~SF
-    ops["jns"] = make_jump( function(){ return !flags["SF"]; } );
+    ops["jns"] = make_jump( function(){ return ~flags["SF"]; } );
 
     // jump condition: ~(SF^OF) & ~ZF
-    ops["jg"] = make_jump( function(){ return flags["SF"] == flags["OF"] && !flags["ZF"]; } );
+    ops["jg"] = make_jump( function(){ return ~(flags["SF"] ^ flags["OF"]) & ~flags["ZF"]; } );
 
     // jump condition: ~(SF^OF)
-    ops["jge"] = make_jump( function(){ return flags["SF"] == flags["OF"]; } );
+    ops["jge"] = make_jump( function(){ return ~(flags["SF"] ^ flags["OF"]); } );
 
     // jump condition: (SF^OF)
-    ops["jl"] = make_jump( function(){ return flags["SF"] != flags["OF"]; } );
+    ops["jl"] = make_jump( function(){ return flags["SF"] ^ flags["OF"]; } );
 
     // jump condition: (SF^OF) | ZF
-    ops["jle"] = make_jump( function(){ return flags["SF"] != flags["OF"] || flags["ZF"]; } );
+    ops["jle"] = make_jump( function(){ return (flags["SF"] ^ flags["OF"]) | flags["ZF"]; } );
 
     return ops;
 }

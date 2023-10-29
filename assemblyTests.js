@@ -47,12 +47,13 @@ function flags_equal(expected)
     for (const f of flag_names)
     {
         // build expected array
-        if (flags[f])
+        const set = (flags[f] == 1);
+        if (set)
             actual.push(f);
 
         // check if expected flag matches actual flag
         const x = (expected.includes(f));
-        if (x != flags[f])
+        if (x != set)
             equal = false;
     }
     console.log(equal? `Passed!` : `FAILED: expected ${expected}, got ${actual}`);
