@@ -52,8 +52,7 @@ function flags_equal(expected)
             actual.push(f);
 
         // check if expected flag matches actual flag
-        const x = (expected.includes(f));
-        if (x != set)
+        if (expected.includes(f) != set)
             equal = false;
     }
     console.log(equal? `Passed!` : `FAILED: expected ${expected}, got ${actual}`);
@@ -92,6 +91,22 @@ function result_tests()
         "xor": ["add $123791 %rax\n xor %rax %rax", "0"],
         "mov": ["add $8 %rsi\n mov %rsi %rax", "8"],
         "push-pop": ["push $30\n pop %rax", "30"],
+        "sete": ["cmp $1 $1\n sete %rax", "1"],
+        "setne": ["cmp $1 $1\n setne %rax", "0"],
+        "sets": ["cmp $2 $1\n sets %rax", "1"],
+        "setns": ["cmp $2 $1\n setns %rax", "0"],
+        "setg greater": ["cmp $1 $2\n setg %rax", "1"],
+        "setg equal": ["cmp $1 $1\n setg %rax", "0"],
+        "setg less": ["cmp $1 $0\n setg %rax", "0"],
+        "setge greater": ["cmp $1 $2\n setge %rax", "1"],
+        "setge equal": ["cmp $1 $1\n setge %rax", "1"],
+        "setge less": ["cmp $1 $0\n setge %rax", "0"],
+        "setl greater": ["cmp $1 $2\n setl %rax", "0"],
+        "setl equal": ["cmp $1 $1\n setl %rax", "0"],
+        "setl less": ["cmp $1 $0\n setl %rax", "1"],
+        "setg greater": ["cmp $1 $2\n setle %rax", "0"],
+        "setg equal": ["cmp $1 $1\n setle %rax", "1"],
+        "setg less": ["cmp $1 $0\n setle %rax", "1"],
         "jmp": ["jmp $2\n add $100 %rax\n add $5 %rax", "5"],
         "je": ["cmp $1 $1\n je $3\n add $10 %rax\n cmp $1 $2\n je $6\n add $1 %rax\n add $200 %rax", "201"],
         "jne": ["cmp $1 $1\n jne $3\n add $10 %rax\n cmp $1 $2\n jne $6\n add $1 %rax\n add $200 %rax", "210"],

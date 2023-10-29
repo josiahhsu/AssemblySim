@@ -315,6 +315,30 @@ function get_ops()
     // compares flags based on S2 & S1
     ops["test"] = make_logic( function(x){ return x[1] & x[0]; }, 2, [], false);
 
+    // D = ZF
+    ops["sete"] = make_none( function(x){ return flags["ZF"]; }, 1);
+
+    // D = ~ZF
+    ops["setne"] = make_none( function(x){ return ~flags["ZF"] & 1; }, 1);
+
+    // D = SF
+    ops["sets"] = make_none( function(x){ return flags["SF"]; }, 1);
+
+    // D = ~ZF
+    ops["setns"] = make_none( function(x){ return ~flags["SF"] & 1; }, 1);
+
+    // D = ~(SF ^ OF) & ~ZF
+    ops["setg"] = make_none( function(x){ return ~(flags["SF"] ^ flags["OF"]) & ~flags["ZF"] & 1; }, 1);
+
+    // D = ~(SF ^ OF)
+    ops["setge"] = make_none( function(x){ return ~(flags["SF"] ^ flags["OF"]) & 1; }, 1);
+
+    // D = SF ^ OF
+    ops["setl"] = make_none( function(x){ return (flags["SF"] ^ flags["OF"]) & 1; }, 1);
+
+    // D = (SF ^ OF) | ZF
+    ops["setle"] = make_none( function(x){ return ((flags["SF"] ^ flags["OF"]) | flags["ZF"]) & 1; }, 1);
+
     // jumps to line specified by operand
     ops["jmp"] = make_jump( function(){ return true; });
     
