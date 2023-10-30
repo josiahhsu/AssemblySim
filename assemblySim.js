@@ -80,10 +80,14 @@ function parse_line(line)
 {
     line = line.trim();
 
-    // empty line - noop
+    // empty line - no-op
     if(!line)
         return true;
-    
+
+    // comment - no-op
+    if(line.match(/^\/\//))
+        return true;
+
     const tokens = line.split(/\s+/);
     const op = tokens[0];
     if (!(op in instructions))

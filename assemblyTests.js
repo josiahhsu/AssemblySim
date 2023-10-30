@@ -118,6 +118,8 @@ function result_tests()
         "jl": ["cmp $0 $1\n jl $3\n add $100 %rax\n cmp $1 $1\n jl $6\n add $10 %rax\n cmp $2 $1\n jl $9\n add $1 %rax\n add $3000 %rax", "3110"],
         "jl OF": ["add $1 %r10\n shl $31 %r10\n cmp $1 %r10\n jl $5\n add $1 %rax\n add $10 %rax", "10"],
         "jle": ["cmp $0 $1\n jle $3\n add $100 %rax\n cmp $1 $1\n jle $6\n add $10 %rax\n cmp $2 $1\n jle $9\n add $1 %rax\n add $3000 %rax", "3100"],
+        "general comment": ["//this is a comment", "0"],
+        "commented instruction": ["//add $15 %rax\n add $7 %rax", "7"],
     };
 
     return [f, tests];
