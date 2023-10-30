@@ -1,4 +1,5 @@
 const register_names = ["rax","rbx","rcx","rdx","rsi","rdi","rbp","rsp","r8","r9","r10","r11","r12","r13","r14","r15"];
+const register_args = ["rdi","rsi","rdx","rcx","r8","r9"];
 const flag_names = ["ZF", "SF", "OF"];
 const instructions = get_ops();
 let stack = [];
@@ -7,12 +8,30 @@ let flags = {};
 let ip = 0;
 debug = false; // used to disable alerts during testing
 
-function init()
+function to_number(value)
 {
-    // clear register values
+    const n = Number(value);
+    return (isNaN(n) || n < 0 || to_32bit(n) != n || Number(value) != n)? NaN : n;
+}
+
+function init(input_args)
+{
+    // initialize register values
+    const arg_regs = Object.keys(input_args);
     for (const r of register_names)
     {
-        registers[r] = 0;
+        let value = 0;
+        if (arg_regs.includes(r))
+        {
+            value = to_number(input_args[r]);
+            if (isNaN(value))
+            {
+                if(!debug)
+                    alert(`Error: Invalid input argument [${r}]`);
+                return false;
+            }
+        }
+        registers[r] = value;
     }
 
     // clear flag values
@@ -24,6 +43,8 @@ function init()
     // reset stack and instruction pointer
     stack = [];
     ip = 0;
+
+    return true;
 }
 
 function error(str)
@@ -32,9 +53,11 @@ function error(str)
         alert(`Error on line ${ip}: ${str}`);
 }
 
-function parse(code, maxIters = 10000)
+function parse(code, input_args = {}, maxIters = 10000)
 {
-    init();
+    if (!init(input_args))
+        return false;
+
     let count = 0;
     const lines = code.split("\n");
     const len = lines.length;
@@ -68,10 +91,10 @@ function parse(code, maxIters = 10000)
     return true;
 }
 
-function get_parse_result(code)
+function get_parse_result(code, args)
 {
     // if parsing successful, get return value stored in rax register
-    if (parse(code))
+    if (parse(code, args))
         return String(registers["rax"]);
     return "ERROR"
 }
@@ -149,8 +172,8 @@ function parse_args(args)
         {
             case '$':
                 // immediate - value must be a positive 32-bit integer
-                const n = Number.parseInt(value);
-                if (isNaN(n) || n < 0 || to_32bit(n) != n || Number(value) != n)
+                const n = to_number(value);
+                if (isNaN(n))
                 {
                     error(`Immediate value [${a}] is not a positive 32-bit integer`);
                     return null;

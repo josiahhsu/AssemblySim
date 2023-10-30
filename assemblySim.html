@@ -36,8 +36,42 @@
         <div id="editor">
             <div id="line-numbers"><span></span></div>
             <textarea id="code" placeholder="Enter your code here."></textarea>
+        </div><br><br>
+
+        <div id="input_args">
+            <b>Input Arguments:</b><br>
         </div><br>
+        <button onclick="run()">Run program</button><br>
+        <button onclick="run_all()">Run tests</button><br>
+
         <script>
+            function make_input_args()
+            {
+                let params = document.getElementById("input_args");
+                for (const c of register_args)
+                {
+                    let label = document.createElement("label");
+                    label.for = c;
+                    label.innerText = `%${c}${c.length == 2? " ": ""}`;
+                    params.appendChild(label);
+
+                    let input = document.createElement("input");
+                    input.id=c;
+                    params.appendChild(input);
+                    
+                    params.appendChild(document.createElement("br"));
+                }
+            }
+            make_input_args();
+
+            function get_input_args()
+            {
+                let args = {};
+                for (const c of register_args)
+                    args[c] = document.getElementById(c).value;
+                return args;
+            }
+
             function add_line_nums()
             {
                 const code = document.getElementById('code');
@@ -50,12 +84,11 @@
 
             function run()
             {
-                let v = get_parse_result(document.getElementById('code').value);
+                const code = document.getElementById('code').value;
+                const v = get_parse_result(code, get_input_args());
                 document.getElementById("result").innerText =`Result: ${v}`;
             }
         </script>
-        <button onclick="run()">Run program</button><br>
-        <button onclick="run_all()">Run tests</button><br>
         <p id="result"></p>
     </div>
 </body>

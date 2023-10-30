@@ -18,6 +18,11 @@ textarea{
     resize: none;
 }
 
+label{
+    padding: 10px;
+    font-family: monospace;
+}
+
 #line-numbers{
     padding: 4px 0px;
     width: 25px;

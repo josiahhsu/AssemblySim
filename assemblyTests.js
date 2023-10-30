@@ -1,6 +1,6 @@
 function run_all()
 {
-    run_tests([result_tests(), error_tests(), flag_tests()]);
+    run_tests([result_tests(), error_tests(), flag_tests(), input_arg_tests()]);
 }
 
 function run_tests(test_suites)
@@ -129,7 +129,7 @@ function error_tests()
 {
     function f(params)
     {
-        return test_equal(get_parse_result(params[0]), "ERROR");
+        return test_equal(get_parse_result(params[0], params[1]), "ERROR");
     }
 
     const tests = {
@@ -140,8 +140,11 @@ function error_tests()
         "Invalid operands": ["add 1 %rax"],
         "Invalid immediate": ["add $one %rax"],
         "Negative immediate": ["add $-1 %rax"],
-        "Floating point immediate": ["add $0.1 %rax"],
+        "Floating-point immediate": ["add $0.1 %rax"],
         "Invalid register": ["add $1 %foo"],
+        "Invalid input argument": ["", {"rdi": "abc"}],
+        "Negative input argument": ["", {"rdi": -1}],
+        "Floating-point input argument": ["", {"rdi": "0.1"}],
     };
 
     return [f, tests];
@@ -168,6 +171,23 @@ function flag_tests()
         "test positive": ["test $1 $1", [""]],
         "test zero": ["test $1 $0", ["ZF"]],
         "test negative": ["not %r9\n not %r10\n test %r9 %r10", ["SF"]],
+    };
+
+    return [f, tests];
+}
+
+function input_arg_tests()
+{
+    function f(params)
+    {
+        return test_equal(get_parse_result(params[0], params[1]), params[2]);
+    }
+
+    const tests = {
+        "one param": ["mov %rdi %rax", {"rdi": 17}, "17"],
+        "ignored param": ["inc %rax", {"rdi": 9}, "1"],
+        "out-of-order param": ["mov %r8 %rax", {"r8": 17}, "17"],
+        "all params": ["or %rdi %rax\n or %rsi %rax\n or %rdx %rax\n or %rcx %rax\n or %r8 %rax\n or %r9 %rax", {"rdi": 1, "rsi": 2, "rdx": 4, "rcx": 8, "r8": 16, "r9": 32}, "63"],
     };
 
     return [f, tests];
