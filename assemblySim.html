@@ -32,20 +32,23 @@
     </script>
 
     <div>
-        <b>Code:</b><br>
         <div id="workspace">
-            <div id="editor">
-                <div id="line-numbers"><span></span></div>
-                <textarea id="code" placeholder="Enter your code here."></textarea>
+            <div>
+                <b>Code:</b><br>
+                <div id="editor">
+                    <div id="line-numbers"><span></span></div>
+                    <textarea id="code" placeholder="Enter your code here."></textarea>
+                </div>
             </div>
-
-            <div id="input_args">
-                <br><b>Input Arguments:</b><br>
+            <div>
+                <b>Input Arguments:</b><br>
+                <div id="input_args"></div>
+                <button onclick="run()">Run program</button><br>
+                <button onclick="run_all()">Run tests</button><br>
             </div>
-        </div><br><br>
-        <button onclick="run()">Run program</button><br>
-        <button onclick="run_all()">Run tests</button><br>
-
+        </div>
+        <p id="result"></p>
+        
         <script>
             function make_input_args()
             {
@@ -91,6 +94,5 @@
                 document.getElementById("result").innerText =`Result: ${v}`;
             }
         </script>
-        <p id="result"></p>
     </div>
 </body>
