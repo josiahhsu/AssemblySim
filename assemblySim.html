@@ -32,6 +32,13 @@
         document.getElementById("instructions").innerText = `Available instructions: ${Object.keys(instructions).join(", ")}`;
     </script>
 
+    <b>Examples:</b>
+    <select id="examples">
+        <option value="pow">Pow</option>
+        <option value="mod">Mod</option>
+    </select>
+    <button onclick="load_example()">Load Example</button>
+    <br>
     <div>
         <div id="workspace">
             <div>
@@ -87,6 +94,31 @@
             }
             add_line_nums();
             code.addEventListener('input', add_line_nums);
+
+            function load_example()
+            {
+                let value = "";
+                switch (document.getElementById("examples").value)
+                {
+                    case "pow":
+                        value = [
+                            "add $1 %rax", 
+                            "mul %rdi %rax",
+                            "dec %rsi",
+                            "cmp %rsi $0",
+                            "jne $1"].join("\n");
+                        break;
+                    case "mod":
+                        value = [
+                            "mov %rdi %rdx",
+                            "div %rsi %rdx",
+                            "mul %rsi %rdx",
+                            "sub %rdx %rdi",
+                            "mov %rdi %rax"].join("\n");
+                        break;
+                }
+                document.getElementById('code').value = value;
+            }
 
             function run()
             {
