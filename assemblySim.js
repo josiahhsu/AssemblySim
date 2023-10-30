@@ -27,7 +27,7 @@ function init(input_args)
             if (isNaN(value))
             {
                 if(!debug)
-                    alert(`Error: Invalid input argument [${r}]`);
+                    alert(`Error: Invalid input argument [%${r}]`);
                 return false;
             }
         }
