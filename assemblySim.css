@@ -1,5 +1,10 @@
 @import url("/github-pages/main.css");
 
+#workspace{
+    display: inline-flex;
+    gap: 10px;
+}
+
 #editor{
     display: inline-flex;
     gap: 10px;
