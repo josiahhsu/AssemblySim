@@ -282,6 +282,8 @@ function make_jump(cond)
 
 function get_ops()
 {
+    const flag_ops = get_flag_ops();
+
     let ops = {};
 
     // D + S
@@ -343,55 +345,76 @@ function get_ops()
     ops["test"] = make_logic( function(x){ return x[1] & x[0]; }, 2, [], false);
 
     // D = ZF
-    ops["sete"] = make_none( function(x){ return flags["ZF"]; }, 1);
+    ops["sete"] = make_none( function(x){ return flag_ops["e"](); }, 1);
 
     // D = ~ZF
-    ops["setne"] = make_none( function(x){ return ~flags["ZF"] & 1; }, 1);
+    ops["setne"] = make_none( function(x){ return flag_ops["ne"](); }, 1);
 
     // D = SF
-    ops["sets"] = make_none( function(x){ return flags["SF"]; }, 1);
+    ops["sets"] = make_none( function(x){ return flag_ops["s"](); }, 1);
 
     // D = ~ZF
-    ops["setns"] = make_none( function(x){ return ~flags["SF"] & 1; }, 1);
+    ops["setns"] = make_none( function(x){ return flag_ops["ns"](); }, 1);
 
     // D = ~(SF ^ OF) & ~ZF
-    ops["setg"] = make_none( function(x){ return ~(flags["SF"] ^ flags["OF"]) & ~flags["ZF"] & 1; }, 1);
+    ops["setg"] = make_none( function(x){ return flag_ops["g"](); }, 1);
 
     // D = ~(SF ^ OF)
-    ops["setge"] = make_none( function(x){ return ~(flags["SF"] ^ flags["OF"]) & 1; }, 1);
+    ops["setge"] = make_none( function(x){ return flag_ops["ge"](); }, 1);
 
     // D = SF ^ OF
-    ops["setl"] = make_none( function(x){ return (flags["SF"] ^ flags["OF"]) & 1; }, 1);
+    ops["setl"] = make_none( function(x){ return flag_ops["l"](); }, 1);
 
     // D = (SF ^ OF) | ZF
-    ops["setle"] = make_none( function(x){ return ((flags["SF"] ^ flags["OF"]) | flags["ZF"]) & 1; }, 1);
+    ops["setle"] = make_none( function(x){ return flag_ops["le"](); }, 1);
 
     // jumps to line specified by operand
-    ops["jmp"] = make_jump( function(){ return true; });
+    ops["jmp"] = make_jump( function(){ return 1; });
     
     // jump condition: ZF
-    ops["je"] = make_jump( function(){ return flags["ZF"]; } );
+    ops["je"] = make_jump( function(){ return flag_ops["e"](); } );
 
     // jump condition: ~ZF
-    ops["jne"] = make_jump( function(){ return ~flags["ZF"]; } );
+    ops["jne"] = make_jump( function(){ return flag_ops["ne"](); } );
 
     // jump condition: SF
-    ops["js"] = make_jump( function(){ return flags["SF"]; } );
+    ops["js"] = make_jump( function(){ return flag_ops["s"](); } );
 
     // jump condition: ~SF
-    ops["jns"] = make_jump( function(){ return ~flags["SF"]; } );
+    ops["jns"] = make_jump( function(){ return flag_ops["ns"](); } );
 
     // jump condition: ~(SF^OF) & ~ZF
-    ops["jg"] = make_jump( function(){ return ~(flags["SF"] ^ flags["OF"]) & ~flags["ZF"]; } );
+    ops["jg"] = make_jump( function(){ return flag_ops["g"](); } );
 
     // jump condition: ~(SF^OF)
-    ops["jge"] = make_jump( function(){ return ~(flags["SF"] ^ flags["OF"]); } );
+    ops["jge"] = make_jump( function(){ return flag_ops["ge"](); } );
 
     // jump condition: (SF^OF)
-    ops["jl"] = make_jump( function(){ return flags["SF"] ^ flags["OF"]; } );
+    ops["jl"] = make_jump( function(){ return flag_ops["l"](); } );
 
     // jump condition: (SF^OF) | ZF
-    ops["jle"] = make_jump( function(){ return (flags["SF"] ^ flags["OF"]) | flags["ZF"]; } );
+    ops["jle"] = make_jump( function(){ return flag_ops["le"](); } );
+
+    return ops;
+}
+
+function get_flag_ops()
+{    
+    function bit(f)
+    {
+        return f() & 1;
+    }
+
+    let ops = {};
+
+    ops["e"] = function(){ return bit(function(){ return flags["ZF"]; })};
+    ops["ne"] = function(){ return bit(function(){ return ~flags["ZF"]; })};
+    ops["s"] = function(){ return bit(function(){ return flags["SF"]; })};
+    ops["ns"] = function(){ return bit(function(){ return ~flags["SF"]; })};
+    ops["g"] = function(){ return bit(function(){ return ~(flags["SF"] ^ flags["OF"]) & ~flags["ZF"]; })};
+    ops["ge"] = function(){ return bit(function(){ return ~(flags["SF"] ^ flags["OF"]); })};
+    ops["l"] = function(){ return bit(function(){ return flags["SF"] ^ flags["OF"]; })};
+    ops["le"] = function(){ return bit(function(){ return (flags["SF"] ^ flags["OF"]) | flags["ZF"]; })};
 
     return ops;
 }
