@@ -214,12 +214,21 @@ function handle_op(op, args, n, flag, regs, store)
     // calculate raw result
     const raw = op(values);
 
-    // set condition codes
-    flag(raw);
-
+    
     // convert to 32-bit result and store if needed
     if (store)
+    {
+        // verify that operation yielded valid result before storing
+        if (isNaN(raw))
+        {
+            error(`Operation with arguments [${values.join(", ")}] resulted in NaN`);
+            return false;
+        }
         registers[args[n-1].substring(1)] = to_32bit(raw);
+    }
+
+    // set condition codes
+    flag(raw);
     
     return true;
 }
@@ -272,7 +281,7 @@ function make_logic(f, n, regs=[n-1],store=true)
 
 function make_none(f,n,regs=[n-1], store=true)
 {
-    return make_op(f, n, (x,y)=>{}, regs, store)
+    return make_op(f, n, (x)=>{}, regs, store)
 }
 
 function make_jump(cond)

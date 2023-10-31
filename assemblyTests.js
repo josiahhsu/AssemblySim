@@ -145,6 +145,7 @@ function error_tests()
         "Invalid input argument": ["", {"rdi": "abc"}],
         "Negative input argument": ["", {"rdi": -1}],
         "Floating-point input argument": ["", {"rdi": "0.1"}],
+        "Div by 0": ["div $0 %rax"],
     };
 
     return [f, tests];
