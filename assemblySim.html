@@ -103,11 +103,19 @@
                 {
                     case "pow":
                         value = [
-                            "add $1 %rax", 
-                            "mul %rdi %rax",
-                            "dec %rsi",
+                            "# if %rdi 0, return 0",
+                            "cmp %rdi $0",
+                            "je $12",
+                            "# initialize %r8 as 1",
+                            "inc %r8",
+                            "# while %rsi != 0, multiply %r8 by %rdi",
                             "cmp %rsi $0",
-                            "jne $1"].join("\n");
+                            "je $12",
+                            "mul %rdi %r8",
+                            "dec %rsi",
+                            "jmp $6",
+                            "# move final result to %rax",
+                            "mov %r8 %rax"].join("\n");
                         break;
                     case "mod":
                         value = [
