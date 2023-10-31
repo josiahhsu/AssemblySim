@@ -108,7 +108,7 @@ function parse_line(line)
         return true;
 
     // comment - no-op
-    if(line.match(/^\/\//))
+    if(line[0] == "#")
         return true;
 
     const tokens = line.split(/\s+/);
