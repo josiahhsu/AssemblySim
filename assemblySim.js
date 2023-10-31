@@ -228,7 +228,7 @@ function handle_op(op, args, n, flag, regs, store)
 // By default assumes last argument should be a register.
 function make_op(f,n,flag,regs,store)
 {
-    return function(args){ return handle_op(f, args, n, flag, regs, store); };
+    return (args)=>{ return handle_op(f, args, n, flag, regs, store); };
 }
 
 function msb(x)
@@ -272,12 +272,12 @@ function make_logic(f, n, regs=[n-1],store=true)
 
 function make_none(f,n,regs=[n-1], store=true)
 {
-    return make_op(f, n, function(x,y){}, regs, store)
+    return make_op(f, n, (x,y)=>{}, regs, store)
 }
 
 function make_jump(cond)
 {
-    return make_none(function(x){ if ((cond() & 1) == 1) ip = x[0];}, 1, [], false);
+    return make_none((x)=>{ if ((cond() & 1) == 1) ip = x[0];}, 1, [], false);
 }
 
 function get_ops()
@@ -287,113 +287,113 @@ function get_ops()
     let ops = {};
 
     // D + S
-    ops["add"] = make_arith( function(x){ return x[1] + x[0]; }, 2);
+    ops["add"] = make_arith( (x)=>{ return x[1] + x[0]; }, 2);
  
     // D - S
-    ops["sub"] = make_arith( function(x){ return x[1] - x[0]; }, 2);
+    ops["sub"] = make_arith( (x)=>{ return x[1] - x[0]; }, 2);
 
     // D * S
-    ops["mul"] = make_arith( function(x){ return x[1] * x[0]; }, 2);
+    ops["mul"] = make_arith( (x)=>{ return x[1] * x[0]; }, 2);
 
     // D / S
-    ops["div"] = make_arith( function(x){ return Math.floor(x[1] / x[0]); }, 2);
+    ops["div"] = make_arith( (x)=>{ return Math.floor(x[1] / x[0]); }, 2);
 
     // D++
-    ops["inc"] = make_arith( function(x){ return x[0] + 1; }, 1);
+    ops["inc"] = make_arith( (x)=>{ return x[0] + 1; }, 1);
     
     // D--
-    ops["dec"] = make_arith( function(x){ return x[0] - 1; }, 1);
+    ops["dec"] = make_arith( (x)=>{ return x[0] - 1; }, 1);
 
     // D << S (same for both arithmetic and logical)
-    ops["sal"] = make_logic( function(x){ return x[1] << x[0]; }, 2);
+    ops["sal"] = make_logic( (x)=>{ return x[1] << x[0]; }, 2);
     ops["shl"] = ops["sal"];
 
     // D >> S (arithmetic, sign-extend)
-    ops["sar"] = make_logic( function(x){ return x[1] >> x[0]; }, 2);
+    ops["sar"] = make_logic( (x)=>{ return x[1] >> x[0]; }, 2);
     
     // D >> S (logical, zero-fill)
-    ops["shr"] = make_logic( function(x){ return x[1] >>> x[0]; }, 2);
+    ops["shr"] = make_logic( (x)=>{ return x[1] >>> x[0]; }, 2);
 
     // -D
-    ops["neg"] = make_logic( function(x){ return -1*x[0]; }, 1);
+    ops["neg"] = make_logic( (x)=>{ return -1*x[0]; }, 1);
 
     // D & S
-    ops["and"] = make_logic( function(x){ return x[1] & x[0]; }, 2);
+    ops["and"] = make_logic( (x)=>{ return x[1] & x[0]; }, 2);
 
     // D | S
-    ops["or"] = make_logic( function(x){ return x[1] | x[0]; }, 2);
+    ops["or"] = make_logic( (x)=>{ return x[1] | x[0]; }, 2);
 
     // ~D
-    ops["not"] = make_logic( function(x){ return ~x[0]; }, 1)
+    ops["not"] = make_logic( (x)=>{ return ~x[0]; }, 1)
 
     // D ^ S
-    ops["xor"] = make_logic( function(x){ return x[1] ^ x[0]; }, 2);
+    ops["xor"] = make_logic( (x)=>{ return x[1] ^ x[0]; }, 2);
 
     // D = S
-    ops["mov"] = make_none( function(x){ return x[0]; }, 2, [0,1]);
+    ops["mov"] = make_none( (x)=>{ return x[0]; }, 2, [0,1]);
 
     // increments %rsp, then pushes S onto stack at pos %rsp
-    ops["push"] = make_none( function(x){ stack[++registers["rsp"]] = x[0]; }, 1, [], false);
+    ops["push"] = make_none( (x)=>{ stack[++registers["rsp"]] = x[0]; }, 1, [], false);
 
     // pops stack value at pos %rsp into D, then decrements %rsp
-    ops["pop"] = make_none( function(x){ return stack[registers["rsp"]--]; }, 1);
+    ops["pop"] = make_none( (x)=>{ return stack[registers["rsp"]--]; }, 1);
     
     // compares flags based on S2 - S1
-    ops["cmp"] = make_arith( function(x){ return x[1] - x[0]; }, 2, [], false);
+    ops["cmp"] = make_arith( (x)=>{ return x[1] - x[0]; }, 2, [], false);
 
     // compares flags based on S2 & S1
-    ops["test"] = make_logic( function(x){ return x[1] & x[0]; }, 2, [], false);
+    ops["test"] = make_logic( (x)=>{ return x[1] & x[0]; }, 2, [], false);
 
     // D = ZF
-    ops["sete"] = make_none( function(x){ return flag_ops["e"](); }, 1);
+    ops["sete"] = make_none( (x)=>{ return flag_ops["e"](); }, 1);
 
     // D = ~ZF
-    ops["setne"] = make_none( function(x){ return flag_ops["ne"](); }, 1);
+    ops["setne"] = make_none( (x)=>{ return flag_ops["ne"](); }, 1);
 
     // D = SF
-    ops["sets"] = make_none( function(x){ return flag_ops["s"](); }, 1);
+    ops["sets"] = make_none( (x)=>{ return flag_ops["s"](); }, 1);
 
     // D = ~ZF
-    ops["setns"] = make_none( function(x){ return flag_ops["ns"](); }, 1);
+    ops["setns"] = make_none( (x)=>{ return flag_ops["ns"](); }, 1);
 
     // D = ~(SF ^ OF) & ~ZF
-    ops["setg"] = make_none( function(x){ return flag_ops["g"](); }, 1);
+    ops["setg"] = make_none( (x)=>{ return flag_ops["g"](); }, 1);
 
     // D = ~(SF ^ OF)
-    ops["setge"] = make_none( function(x){ return flag_ops["ge"](); }, 1);
+    ops["setge"] = make_none( (x)=>{ return flag_ops["ge"](); }, 1);
 
     // D = SF ^ OF
-    ops["setl"] = make_none( function(x){ return flag_ops["l"](); }, 1);
+    ops["setl"] = make_none( (x)=>{ return flag_ops["l"](); }, 1);
 
     // D = (SF ^ OF) | ZF
-    ops["setle"] = make_none( function(x){ return flag_ops["le"](); }, 1);
+    ops["setle"] = make_none( (x)=>{ return flag_ops["le"](); }, 1);
 
     // jumps to line specified by operand
-    ops["jmp"] = make_jump( function(){ return 1; });
+    ops["jmp"] = make_jump( ()=>{ return 1; });
     
     // jump condition: ZF
-    ops["je"] = make_jump( function(){ return flag_ops["e"](); } );
+    ops["je"] = make_jump( ()=>{ return flag_ops["e"](); } );
 
     // jump condition: ~ZF
-    ops["jne"] = make_jump( function(){ return flag_ops["ne"](); } );
+    ops["jne"] = make_jump( ()=>{ return flag_ops["ne"](); } );
 
     // jump condition: SF
-    ops["js"] = make_jump( function(){ return flag_ops["s"](); } );
+    ops["js"] = make_jump( ()=>{ return flag_ops["s"](); } );
 
     // jump condition: ~SF
-    ops["jns"] = make_jump( function(){ return flag_ops["ns"](); } );
+    ops["jns"] = make_jump( ()=>{ return flag_ops["ns"](); } );
 
     // jump condition: ~(SF^OF) & ~ZF
-    ops["jg"] = make_jump( function(){ return flag_ops["g"](); } );
+    ops["jg"] = make_jump( ()=>{ return flag_ops["g"](); } );
 
     // jump condition: ~(SF^OF)
-    ops["jge"] = make_jump( function(){ return flag_ops["ge"](); } );
+    ops["jge"] = make_jump( ()=>{ return flag_ops["ge"](); } );
 
     // jump condition: (SF^OF)
-    ops["jl"] = make_jump( function(){ return flag_ops["l"](); } );
+    ops["jl"] = make_jump( ()=>{ return flag_ops["l"](); } );
 
     // jump condition: (SF^OF) | ZF
-    ops["jle"] = make_jump( function(){ return flag_ops["le"](); } );
+    ops["jle"] = make_jump( ()=>{ return flag_ops["le"](); } );
 
     return ops;
 }
@@ -407,14 +407,14 @@ function get_flag_ops()
 
     let ops = {};
 
-    ops["e"] = function(){ return bit(function(){ return flags["ZF"]; })};
-    ops["ne"] = function(){ return bit(function(){ return ~flags["ZF"]; })};
-    ops["s"] = function(){ return bit(function(){ return flags["SF"]; })};
-    ops["ns"] = function(){ return bit(function(){ return ~flags["SF"]; })};
-    ops["g"] = function(){ return bit(function(){ return ~(flags["SF"] ^ flags["OF"]) & ~flags["ZF"]; })};
-    ops["ge"] = function(){ return bit(function(){ return ~(flags["SF"] ^ flags["OF"]); })};
-    ops["l"] = function(){ return bit(function(){ return flags["SF"] ^ flags["OF"]; })};
-    ops["le"] = function(){ return bit(function(){ return (flags["SF"] ^ flags["OF"]) | flags["ZF"]; })};
+    ops["e"] = ()=>{ return bit(()=>{ return flags["ZF"]; })};
+    ops["ne"] = ()=>{ return bit(()=>{ return ~flags["ZF"]; })};
+    ops["s"] = ()=>{ return bit(()=>{ return flags["SF"]; })};
+    ops["ns"] = ()=>{ return bit(()=>{ return ~flags["SF"]; })};
+    ops["g"] = ()=>{ return bit(()=>{ return ~(flags["SF"] ^ flags["OF"]) & ~flags["ZF"]; })};
+    ops["ge"] = ()=>{ return bit(()=>{ return ~(flags["SF"] ^ flags["OF"]); })};
+    ops["l"] = ()=>{ return bit(()=>{ return flags["SF"] ^ flags["OF"]; })};
+    ops["le"] = ()=>{ return bit(()=>{ return (flags["SF"] ^ flags["OF"]) | flags["ZF"]; })};
 
     return ops;
 }
