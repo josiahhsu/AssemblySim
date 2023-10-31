@@ -277,7 +277,7 @@ function make_none(f,n,regs=[n-1], store=true)
 
 function make_jump(cond)
 {
-    return make_none((x)=>{ if ((cond() & 1) == 1) ip = x[0];}, 1, [], false);
+    return make_none((x)=>{ if (cond() == 1) ip = x[0];}, 1, [], false);
 }
 
 function get_ops()
