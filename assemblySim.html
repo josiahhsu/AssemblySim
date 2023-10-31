@@ -103,22 +103,24 @@
                 {
                     case "pow":
                         value = [
-                            "# if %rdi 0, return 0",
+                            "# pow: returns %rdi to the power of %rsi",
+                            "# if %rdi = 0, return 0",
                             "cmp %rdi $0",
-                            "je $12",
+                            "je $13",
                             "# initialize %r8 as 1",
                             "inc %r8",
                             "# while %rsi != 0, multiply %r8 by %rdi",
                             "cmp %rsi $0",
-                            "je $12",
+                            "je $13",
                             "mul %rdi %r8",
                             "dec %rsi",
-                            "jmp $6",
+                            "jmp $7",
                             "# move final result to %rax",
                             "mov %r8 %rax"].join("\n");
                         break;
                     case "mod":
                         value = [
+                            "# mod: returns %rdi mod %rsi",
                             "mov %rdi %rdx",
                             "div %rsi %rdx",
                             "mul %rsi %rdx",
