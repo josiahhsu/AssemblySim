@@ -10,7 +10,7 @@
     gap: 10px;
     font-family: monospace;
     line-height: 21px;
-    height: 200px;
+    height: 300px;
     overflow: auto;
     counter-reset: linenumber -1;
 }
