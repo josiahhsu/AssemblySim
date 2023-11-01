@@ -123,14 +123,14 @@ function parse_line(line)
 
 /** operand parsing **/
 
-function is_immediate(reg)
+function is_immediate(arg)
 {
-    return reg.charAt(0) == '$';
+    return arg.charAt(0) == '$';
 }
 
-function is_register(reg)
+function is_register(arg)
 {
-    return reg.charAt(0) == '%' && register_names.includes(reg.substring(1));
+    return arg.charAt(0) == '%' && register_names.includes(arg.substring(1));
 }
 
 function check_type(arg, types)
