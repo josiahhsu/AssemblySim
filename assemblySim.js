@@ -9,6 +9,19 @@ let flags = {};
 let ip = 0;
 debug = false; // used to disable alerts during testing
 
+function to_32bit(x)
+{
+    /*
+     * This takes advantage of two quirks of JavaScript:
+     * 1. Bitwise operations only handle 32-bit operands.
+     * 2. Javascript actually stores values as 64-bit floats.
+     * The following will convert x to a 32-bit int, ensure those 32 
+     * bits are unchanged, and then convert it back to 64 bits,
+     * effectively restricting the value of x to a 32-bit range.
+     */
+    return x | 0;
+}
+
 function to_number(value)
 {
     const n = Number(value);
@@ -179,19 +192,6 @@ function check_type(arg, types)
     return false;
 }
 
-function to_32bit(x)
-{
-    /*
-     * This takes advantage of two quirks of JavaScript:
-     * 1. Bitwise operations only handle 32-bit operands.
-     * 2. Javascript actually stores values as 64-bit floats.
-     * The following will convert x to a 32-bit int, ensure those 32 
-     * bits are unchanged, and then convert it back to 64 bits,
-     * effectively restricting the value of x to a 32-bit range.
-     */
-    return x | 0;
-}
-
 function check_args(args, types)
 {
     const n = types.length;
@@ -250,8 +250,6 @@ function parse_args(args)
     return values;
 }
 
-/** operator functions **/
-
 // Generic function for handling an instruction with n arguments.
 // The types parameter is a list of types that the arguments must match.
 // The flag parameter is a function that dictates how condition codes should be set.
@@ -293,6 +291,8 @@ function make_op(f,types,flag,store)
     return (args)=>{ return handle_op(f, args, types, flag, store); };
 }
 
+/** flag handling **/
+
 function msb(x)
 {
     return (x >> 31) & 1;
@@ -304,8 +304,6 @@ function result_flags(raw)
     flags["ZF"] = (result == 0)? 1 : 0;
     flags["SF"] = msb(result);
 }
-
-/** wrappers for functions based on flags they set **/
 
 function make_arith(f, types, store=true)
 {
@@ -341,6 +339,8 @@ function make_jump(cond, types=["IL"])
 {
     return make_none((x)=>{ if (cond() == 1) ip = x[0];}, types, false);
 }
+
+/** operator functions **/
 
 function get_ops()
 {
