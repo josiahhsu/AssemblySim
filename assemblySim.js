@@ -50,7 +50,7 @@ function init(code, input_args)
     const lines = code.split("\n");
     for (var i = 0; i < lines.length; i++)
     {
-        const l = lines[i];
+        const l = lines[i].trim();
         if (l.match(/\.\w+:/))
             labels[l.substring(1, l.length-1)] = i;
     }
