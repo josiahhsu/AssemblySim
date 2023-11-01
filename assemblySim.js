@@ -235,12 +235,7 @@ function parse_args(args)
                 values.push(n);
                 break;
             case '%':
-                // register - must be a valid register name
-                if (!is_register(a))
-                {
-                    error(`Invalid register [${a}]`);
-                    return null;
-                }
+                // register
                 values.push(registers[value]);
                 break;
             case '.':
