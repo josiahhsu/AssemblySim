@@ -110,26 +110,26 @@
                             "# if %rdi = 0, return 0",
                             "cmp %rdi $0",
                             "je .end",
-                            "# initialize %r8 as 1",
-                            "inc %r8",
-                            "# while %rsi != 0, multiply %r8 by %rdi",
+                            "# initialize %r10 as 1",
+                            "inc %r10",
+                            "# while %rsi != 0, multiply %r10 by %rdi",
                             ".loop:",
                             "cmp %rsi $0",
                             "je .end",
-                            "mul %rdi %r8",
+                            "mul %rdi %r10",
                             "dec %rsi",
                             "jmp .loop",
                             "# move final result to %rax",
                             ".end:",
-                            "mov %r8 %rax"].join("\n");
+                            "mov %r10 %rax"].join("\n");
                         break;
                     case "mod":
                         value = [
                             "# mod: returns %rdi mod %rsi",
-                            "mov %rdi %rdx",
-                            "div %rsi %rdx",
-                            "mul %rsi %rdx",
-                            "sub %rdx %rdi",
+                            "mov %rdi %r10",
+                            "div %rsi %r10",
+                            "mul %rsi %r10",
+                            "sub %r10 %rdi",
                             "mov %rdi %rax"].join("\n");
                         break;
                 }
