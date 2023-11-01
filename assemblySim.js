@@ -177,11 +177,13 @@ function check_args(args, types)
         return false;
     }
     
+    const typenames = {"I":"Immediate", "R":"Register"};
     for (var i = 0; i < n; i++)
     {
-        if (!check_type(args[i], types[i]))
+        const t = types[i];
+        if (!check_type(args[i], t))
         {
-            error(`Argument ${i} must be of type ${types[i]}`);
+            error(`Type of argument ${i} must be ${typenames[t]}`);
             return false;
         }
     }
