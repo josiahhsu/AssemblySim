@@ -89,6 +89,8 @@
             function add_line_nums()
             {
                 const code = document.getElementById('code');
+                code.style.height = "1px";
+                code.style.height = Math.max(code.scrollHeight, 301)+"px";
                 const lineNumbers = document.getElementById('line-numbers');
                 const numberOfLines = code.value.split('\n').length;
                 lineNumbers.innerHTML = Array(numberOfLines).fill('<span></span>').join('');
