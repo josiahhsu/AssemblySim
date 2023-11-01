@@ -3,6 +3,7 @@ const register_args = ["rdi","rsi","rdx","rcx","r8","r9"];
 const flag_names = ["ZF", "SF", "OF"];
 const instructions = get_ops();
 let stack = [];
+let labels = {};
 let registers = {};
 let flags = {};
 let ip = 0;
@@ -14,7 +15,7 @@ function to_number(value)
     return (isNaN(n) || n < 0 || to_32bit(n) != n || Number(value) != n)? NaN : n;
 }
 
-function init(input_args)
+function init(code, input_args)
 {
     // initialize register values
     const arg_regs = Object.keys(input_args);
@@ -44,6 +45,16 @@ function init(input_args)
     stack = [];
     ip = 0;
 
+    // load labels
+    labels = {};
+    const lines = code.split("\n");
+    for (var i = 0; i < lines.length; i++)
+    {
+        const l = lines[i];
+        if (l.match(/\.\w+:/))
+            labels[l.substring(1, l.length-1)] = i;
+    }
+
     return true;
 }
 
@@ -55,7 +66,7 @@ function error(str)
 
 function parse(code, input_args = {}, maxIters = 10000)
 {
-    if (!init(input_args))
+    if (!init(code, input_args))
         return false;
 
     let count = 0;
@@ -111,6 +122,10 @@ function parse_line(line)
     if(line[0] == "#")
         return true;
 
+    // label - no-op
+    if(line[0] == "." && line[line.length - 1] == ":")
+        return true;
+
     const tokens = line.split(/\s+/);
     const op = tokens[0];
     if (!(op in instructions))
@@ -133,6 +148,11 @@ function is_register(arg)
     return arg.charAt(0) == '%' && register_names.includes(arg.substring(1));
 }
 
+function is_label(arg)
+{
+    return arg.charAt(0) == '.';
+}
+
 function check_type(arg, types)
 {
     // check that argument is one of a list of types 
@@ -146,6 +166,10 @@ function check_type(arg, types)
                 break;
             case "R":
                 if (is_register(arg))
+                    return true;
+                break;
+            case "L":
+                if (is_label(arg))
                     return true;
                 break;
             default:
@@ -218,6 +242,10 @@ function parse_args(args)
                     return null;
                 }
                 values.push(registers[value]);
+                break;
+            case '.':
+                // label
+                values.push(labels[value]);
                 break;
             default:
                 error(`Invalid operand form [${a}]`);
@@ -314,7 +342,7 @@ function make_none(f, types, store=true)
     return make_op(f, types, (x)=>{}, store)
 }
 
-function make_jump(cond, types=["I"])
+function make_jump(cond, types=["IL"])
 {
     return make_none((x)=>{ if (cond() == 1) ip = x[0];}, types, false);
 }
