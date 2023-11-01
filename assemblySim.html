@@ -108,16 +108,18 @@
                             "# pow: returns %rdi to the power of %rsi",
                             "# if %rdi = 0, return 0",
                             "cmp %rdi $0",
-                            "je $13",
+                            "je .end",
                             "# initialize %r8 as 1",
                             "inc %r8",
                             "# while %rsi != 0, multiply %r8 by %rdi",
+                            ".loop:",
                             "cmp %rsi $0",
-                            "je $13",
+                            "je .end",
                             "mul %rdi %r8",
                             "dec %rsi",
-                            "jmp $7",
+                            "jmp .loop",
                             "# move final result to %rax",
+                            ".end:",
                             "mov %r8 %rax"].join("\n");
                         break;
                     case "mod":
