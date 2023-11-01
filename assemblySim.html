@@ -19,6 +19,7 @@
         The syntax for each line is [instruction] [Operand1] [Operand2] [...].
         Empty lines will be treated as no-ops and skipped.
         Lines starting with a pound sign will be treated as comments and skipped.
+        Lines starting with a period and ending with a colon are labels that can be used for jump destinations.
         Operands can either be an immediate value (prefixed with $) or a register name (prefixed with %).
         Operand values and operation results are limited to 32-bit signed integers, and immediate values must also be positive.
         By convention the return value will be stored in register %rax.
