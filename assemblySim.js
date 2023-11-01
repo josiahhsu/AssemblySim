@@ -123,9 +123,36 @@ function parse_line(line)
 
 /** operand parsing **/
 
+function is_immediate(reg)
+{
+    return reg.charAt(0) == '$';
+}
+
 function is_register(reg)
 {
     return reg.charAt(0) == '%' && register_names.includes(reg.substring(1));
+}
+
+function check_type(arg, types)
+{
+    // check that argument is one of a list of types 
+    for (const c of types)
+    {
+        switch(c)
+        {
+            case "I":
+                if (is_immediate(arg))
+                    return true;
+                break;
+            case "R":
+                if (is_register(arg))
+                    return true;
+                break;
+            default:
+                return false;
+        }
+    }
+    return false;
 }
 
 function to_32bit(x)
@@ -141,19 +168,20 @@ function to_32bit(x)
     return x | 0;
 }
 
-function check_args(args, n, regs)
+function check_args(args, types)
 {
+    const n = types.length;
     if (args.length != n)
     {
         error(`Expected ${n} arguments, found ${args.length}`);
         return false;
     }
     
-    for (const i of regs)
+    for (var i = 0; i < n; i++)
     {
-        if (!is_register(args[i]))
+        if (!check_type(args[i], types[i]))
         {
-            error(`Argument ${i} must be a register.`)
+            error(`Argument ${i} must be of type ${types[i]}`);
             return false;
         }
     }
@@ -200,14 +228,14 @@ function parse_args(args)
 /** operator functions **/
 
 // Generic function for handling an instruction with n arguments.
+// The types parameter is a list of types that the arguments must match.
 // The flag parameter is a function that dictates how condition codes should be set.
-// The regs parameter is a list of argument positions that must be registers.
-function handle_op(op, args, n, flag, regs, store)
+function handle_op(op, args, types, flag, store)
 {
-    if (!check_args(args, n, regs))
+    if (!check_args(args, types))
         return false;
 
-    const values = parse_args(args);
+    const values = parse_args(args, types);
     if (!values)
         return false;
 
@@ -224,7 +252,7 @@ function handle_op(op, args, n, flag, regs, store)
             error(`Operation with arguments [${values.join(", ")}] resulted in NaN`);
             return false;
         }
-        registers[args[n-1].substring(1)] = to_32bit(raw);
+        registers[args[args.length-1].substring(1)] = to_32bit(raw);
     }
 
     // set condition codes
@@ -235,9 +263,9 @@ function handle_op(op, args, n, flag, regs, store)
 
 // Wrappers for making operator functions.
 // By default assumes last argument should be a register.
-function make_op(f,n,flag,regs,store)
+function make_op(f,types,flag,store)
 {
-    return (args)=>{ return handle_op(f, args, n, flag, regs, store); };
+    return (args)=>{ return handle_op(f, args, types, flag, store); };
 }
 
 function msb(x)
@@ -254,7 +282,7 @@ function result_flags(raw)
 
 /** wrappers for functions based on flags they set **/
 
-function make_arith(f, n, regs=[n-1], store=true)
+function make_arith(f, types, store=true)
 {
     function arith_flags(raw)
     {
@@ -266,27 +294,27 @@ function make_arith(f, n, regs=[n-1], store=true)
          */ 
         flags["OF"] = (to_32bit(raw) == raw)? 0 : 1;
     }
-    return make_op(f, n, arith_flags, regs, store)
+    return make_op(f, types, arith_flags, store)
 }
 
-function make_logic(f, n, regs=[n-1],store=true)
+function make_logic(f, types, store=true)
 {
     function logic_flags(result)
     {
         result_flags(result);
         flags["OF"] = 0;
     }
-    return make_op(f, n, logic_flags, regs, store)
+    return make_op(f, types, logic_flags, store)
 }
 
-function make_none(f,n,regs=[n-1], store=true)
+function make_none(f, types, store=true)
 {
-    return make_op(f, n, (x)=>{}, regs, store)
+    return make_op(f, types, (x)=>{}, store)
 }
 
-function make_jump(cond)
+function make_jump(cond, types=["I"])
 {
-    return make_none((x)=>{ if (cond() == 1) ip = x[0];}, 1, [], false);
+    return make_none((x)=>{ if (cond() == 1) ip = x[0];}, types, false);
 }
 
 function get_ops()
@@ -294,88 +322,91 @@ function get_ops()
     const flag_ops = get_flag_ops();
 
     let ops = {};
+    const sd = ["IR", "R"];
+    const d = ["R"];
 
     // D + S
-    ops["add"] = make_arith( (x)=>{ return x[1] + x[0]; }, 2);
+    ops["add"] = make_arith( (x)=>{ return x[1] + x[0]; }, sd);
  
     // D - S
-    ops["sub"] = make_arith( (x)=>{ return x[1] - x[0]; }, 2);
+    ops["sub"] = make_arith( (x)=>{ return x[1] - x[0]; }, sd);
 
     // D * S
-    ops["mul"] = make_arith( (x)=>{ return x[1] * x[0]; }, 2);
+    ops["mul"] = make_arith( (x)=>{ return x[1] * x[0]; }, sd);
 
     // D / S
-    ops["div"] = make_arith( (x)=>{ return Math.floor(x[1] / x[0]); }, 2);
+    ops["div"] = make_arith( (x)=>{ return Math.floor(x[1] / x[0]); }, sd);
 
     // D++
-    ops["inc"] = make_arith( (x)=>{ return x[0] + 1; }, 1);
+    ops["inc"] = make_arith( (x)=>{ return x[0] + 1; }, d);
     
     // D--
-    ops["dec"] = make_arith( (x)=>{ return x[0] - 1; }, 1);
+    ops["dec"] = make_arith( (x)=>{ return x[0] - 1; }, d);
 
     // D << S (same for both arithmetic and logical)
-    ops["sal"] = make_logic( (x)=>{ return x[1] << x[0]; }, 2);
+    ops["sal"] = make_logic( (x)=>{ return x[1] << x[0]; }, sd);
     ops["shl"] = ops["sal"];
 
     // D >> S (arithmetic, sign-extend)
-    ops["sar"] = make_logic( (x)=>{ return x[1] >> x[0]; }, 2);
+    ops["sar"] = make_logic( (x)=>{ return x[1] >> x[0]; }, sd);
     
     // D >> S (logical, zero-fill)
-    ops["shr"] = make_logic( (x)=>{ return x[1] >>> x[0]; }, 2);
+    ops["shr"] = make_logic( (x)=>{ return x[1] >>> x[0]; }, sd);
 
     // -D
-    ops["neg"] = make_logic( (x)=>{ return -1*x[0]; }, 1);
+    ops["neg"] = make_logic( (x)=>{ return -1*x[0]; }, d);
 
     // D & S
-    ops["and"] = make_logic( (x)=>{ return x[1] & x[0]; }, 2);
+    ops["and"] = make_logic( (x)=>{ return x[1] & x[0]; }, sd);
 
     // D | S
-    ops["or"] = make_logic( (x)=>{ return x[1] | x[0]; }, 2);
+    ops["or"] = make_logic( (x)=>{ return x[1] | x[0]; }, sd);
 
     // ~D
-    ops["not"] = make_logic( (x)=>{ return ~x[0]; }, 1)
+    ops["not"] = make_logic( (x)=>{ return ~x[0]; }, d)
 
     // D ^ S
-    ops["xor"] = make_logic( (x)=>{ return x[1] ^ x[0]; }, 2);
+    ops["xor"] = make_logic( (x)=>{ return x[1] ^ x[0]; }, sd);
 
     // D = S
-    ops["mov"] = make_none( (x)=>{ return x[0]; }, 2, [0,1]);
+    ops["mov"] = make_none( (x)=>{ return x[0]; }, ["R","R"]);
 
     // increments %rsp, then pushes S onto stack at pos %rsp
-    ops["push"] = make_none( (x)=>{ stack[++registers["rsp"]] = x[0]; }, 1, [], false);
+    ops["push"] = make_none( (x)=>{ stack[++registers["rsp"]] = x[0]; }, ["IR"], false);
 
     // pops stack value at pos %rsp into D, then decrements %rsp
-    ops["pop"] = make_none( (x)=>{ return stack[registers["rsp"]--]; }, 1);
+    ops["pop"] = make_none( (x)=>{ return stack[registers["rsp"]--]; }, d);
     
+    // TODO: Fix test/cmp test cases since those shouldn't allow the destination to be immediate
     // compares flags based on S2 - S1
-    ops["cmp"] = make_arith( (x)=>{ return x[1] - x[0]; }, 2, [], false);
+    ops["cmp"] = make_arith( (x)=>{ return x[1] - x[0]; }, ["IR","IR"], false);
 
     // compares flags based on S2 & S1
-    ops["test"] = make_logic( (x)=>{ return x[1] & x[0]; }, 2, [], false);
+    ops["test"] = make_logic( (x)=>{ return x[1] & x[0]; }, ["IR","IR"], false);
 
     // D = ZF
-    ops["sete"] = make_none( (x)=>{ return flag_ops["e"](); }, 1);
+    ops["sete"] = make_none( (x)=>{ return flag_ops["e"](); }, d);
 
     // D = ~ZF
-    ops["setne"] = make_none( (x)=>{ return flag_ops["ne"](); }, 1);
+    ops["setne"] = make_none( (x)=>{ return flag_ops["ne"](); }, d);
 
     // D = SF
-    ops["sets"] = make_none( (x)=>{ return flag_ops["s"](); }, 1);
+    ops["sets"] = make_none( (x)=>{ return flag_ops["s"](); }, d);
 
     // D = ~ZF
-    ops["setns"] = make_none( (x)=>{ return flag_ops["ns"](); }, 1);
+    ops["setns"] = make_none( (x)=>{ return flag_ops["ns"](); }, d);
 
     // D = ~(SF ^ OF) & ~ZF
-    ops["setg"] = make_none( (x)=>{ return flag_ops["g"](); }, 1);
+    ops["setg"] = make_none( (x)=>{ return flag_ops["g"](); }, d);
 
     // D = ~(SF ^ OF)
-    ops["setge"] = make_none( (x)=>{ return flag_ops["ge"](); }, 1);
+    ops["setge"] = make_none( (x)=>{ return flag_ops["ge"](); }, d);
 
     // D = SF ^ OF
-    ops["setl"] = make_none( (x)=>{ return flag_ops["l"](); }, 1);
+    ops["setl"] = make_none( (x)=>{ return flag_ops["l"](); }, d);
 
     // D = (SF ^ OF) | ZF
-    ops["setle"] = make_none( (x)=>{ return flag_ops["le"](); }, 1);
+    ops["setle"] = make_none( (x)=>{ return flag_ops["le"](); }, d);
 
     // jumps to line specified by operand
     ops["jmp"] = make_jump( ()=>{ return 1; });
