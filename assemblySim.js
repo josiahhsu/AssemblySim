@@ -28,6 +28,23 @@ function to_number(value)
     return (isNaN(n) || n < 0 || to_32bit(n) != n || Number(value) != n)? NaN : n;
 }
 
+function is_noop(line)
+{
+    // empty line - no-op
+    if (!line)
+        return true;
+
+    // comment - no-op
+    if (line[0] == "#")
+        return true;
+
+    // label - no-op
+    if (line[0] == "." && line[line.length - 1] == ":")
+        return true;
+
+    return false;
+}
+
 function init(code, input_args)
 {
     // initialize register values
@@ -54,19 +71,40 @@ function init(code, input_args)
         flags[f] = 0;
     }
 
+    // do a pass over the code to check syntax and record labels
+    labels = {};
+    const lines = code.split("\n");
+    for (ip = 0; ip < lines.length; ip++)
+    {
+        // if line is a label, store it
+        const line = lines[ip].trim();
+        if (line.match(/\.\w+:/))
+        {
+            labels[line.substring(1, line.length-1)] = ip;
+            continue;
+        }
+
+        // empty line - no-op
+        if(is_noop(line))
+            continue;
+
+        // check that instructions are valid
+        const tokens = line.split(/\s+/);
+        const op = tokens[0];
+        if (!(op in instructions))
+        {
+            error(`Unrecognized instruction [${op}]`);
+            return false;
+        }
+
+        // check that arguments for selected instruction are valid
+        if (!check_args(tokens.slice(1), instructions[op][1]))
+            return false;
+    }
+    
     // reset stack and instruction pointer
     stack = [];
     ip = 0;
-
-    // load labels
-    labels = {};
-    const lines = code.split("\n");
-    for (var i = 0; i < lines.length; i++)
-    {
-        const l = lines[i].trim();
-        if (l.match(/\.\w+:/))
-            labels[l.substring(1, l.length-1)] = i;
-    }
 
     return true;
 }
@@ -126,27 +164,11 @@ function get_parse_result(code, args)
 function parse_line(line)
 {
     line = line.trim();
-
-    // empty line - no-op
-    if(!line)
-        return true;
-
-    // comment - no-op
-    if(line[0] == "#")
-        return true;
-
-    // label - no-op
-    if(line[0] == "." && line[line.length - 1] == ":")
+    if (is_noop(line))
         return true;
 
     const tokens = line.split(/\s+/);
-    const op = tokens[0];
-    if (!(op in instructions))
-    {
-        error(`Unrecognized instruction [${op}]`);
-        return false;
-    }
-    return instructions[op](tokens.slice(1));
+    return instructions[tokens[0]][0](tokens.slice(1));
 }
 
 /** operand parsing **/
@@ -253,18 +275,14 @@ function parse_args(args)
 // Generic function for handling an instruction with n arguments.
 // The types parameter is a list of types that the arguments must match.
 // The flag parameter is a function that dictates how condition codes should be set.
-function handle_op(op, args, types, flag, store)
+function handle_op(op, args, flag, store)
 {
-    if (!check_args(args, types))
-        return false;
-
     const values = parse_args(args);
     if (!values)
         return false;
 
     // calculate raw result
     const raw = op(values);
-
     
     // convert to 32-bit result and store if needed
     if (store)
@@ -288,7 +306,7 @@ function handle_op(op, args, types, flag, store)
 // By default assumes last argument should be a register.
 function make_op(f,types,flag,store)
 {
-    return (args)=>{ return handle_op(f, args, types, flag, store); };
+    return [(args)=>{ return handle_op(f, args, flag, store); }, types];
 }
 
 /** flag handling **/
@@ -317,7 +335,7 @@ function make_arith(f, types, store=true)
          */ 
         flags["OF"] = (to_32bit(raw) == raw)? 0 : 1;
     }
-    return make_op(f, types, arith_flags, store)
+    return make_op(f, types, arith_flags, store);
 }
 
 function make_logic(f, types, store=true)
@@ -327,12 +345,12 @@ function make_logic(f, types, store=true)
         result_flags(result);
         flags["OF"] = 0;
     }
-    return make_op(f, types, logic_flags, store)
+    return make_op(f, types, logic_flags, store);
 }
 
 function make_none(f, types, store=true)
 {
-    return make_op(f, types, (x)=>{}, store)
+    return make_op(f, types, (x)=>{}, store);
 }
 
 function make_jump(cond, types=["IL"])
