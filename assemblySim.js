@@ -72,7 +72,7 @@ function is_register(arg)
 
 function is_label(arg)
 {
-    return arg.charAt(0) == '.' && arg.substring(1) in labels;
+    return arg.charAt(0) == '.' && arg in labels;
 }
 
 function check_type(arg, types)
@@ -157,7 +157,7 @@ function prepass(code)
         if (/\..*:/.test(line))
         {        
             // if line is a valid label, record its position
-            const label = line.substring(1, line.length-1);
+            const label = line.substring(0, line.length-1);
             if (/\s/.test(label))
             {
                 syntax_error(`Label [${label}] must not have spaces`);
@@ -314,7 +314,7 @@ function evaluate_args(args)
                 break;
             case '.':
                 // label
-                values.push(labels[value]);
+                values.push(labels[a]);
                 break;
             default:
                 runtime_error(`Invalid operand form [${a}]`);
