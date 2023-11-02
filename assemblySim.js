@@ -157,7 +157,13 @@ function prepass(code)
         if (line.match(/\.\w+:/))
         {        
             // if line is a label, record its position
-            labels[line.substring(1, line.length-1)] = ip;
+            const label = line.substring(1, line.length-1);
+            if (label in labels)
+            {
+                syntax_error(`Label [${label}] defined multiple times`);
+                return false;
+            }
+            labels[label] = ip;
             continue;
         }
         else if (line.match(/\.\w+/))
