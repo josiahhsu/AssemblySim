@@ -343,7 +343,7 @@ function handle_op(op, args, flag, store)
         {
             runtime_error(`Operation with arguments [${values.join(", ")}] resulted in NaN`);
             return false;
-        }
+        }        
         registers[args[args.length-1].substring(1)] = to_32bit(raw);
     }
 
@@ -353,14 +353,12 @@ function handle_op(op, args, flag, store)
     return true;
 }
 
-// Wrappers for making operator functions.
-// By default assumes last argument should be a register.
+/** Wrappers and helpers for making operator functions. */
+
 function make_op(f,types,flag,store)
 {
     return [(args)=>{ return handle_op(f, args, flag, store); }, types];
 }
-
-/** flag handling **/
 
 function msb(x)
 {
@@ -404,14 +402,45 @@ function make_none(f, types, store=true)
     return make_op(f, types, (x)=>{}, store);
 }
 
-function make_jump(cond, types=["IL"])
+function make_jump(cond, types)
 {
     return make_none((x)=>{ if (cond() == 1) ip = x[0];}, types, false);
 }
 
-function make_move(cond, types=["R", "R"])
+function make_move(cond, types)
 {
     return make_none((x)=>{ return (cond() == 1)? x[0] : x[1];}, types);
+}
+
+function get_flag_ops()
+{    
+    function bit(f)
+    {
+        return f() & 1;
+    }
+
+    let ops = {};
+
+    ops["e"] = ()=>{ return bit(()=>{ return flags["ZF"]; })};
+    ops["ne"] = ()=>{ return bit(()=>{ return ~flags["ZF"]; })};
+    ops["s"] = ()=>{ return bit(()=>{ return flags["SF"]; })};
+    ops["ns"] = ()=>{ return bit(()=>{ return ~flags["SF"]; })};
+    ops["g"] = ()=>{ return bit(()=>{ return ~(flags["SF"] ^ flags["OF"]) & ~flags["ZF"]; })};
+    ops["ge"] = ()=>{ return bit(()=>{ return ~(flags["SF"] ^ flags["OF"]); })};
+    ops["l"] = ()=>{ return bit(()=>{ return flags["SF"] ^ flags["OF"]; })};
+    ops["le"] = ()=>{ return bit(()=>{ return (flags["SF"] ^ flags["OF"]) | flags["ZF"]; })};
+
+    return ops;
+}
+
+function make_cond_ops(ops, prefix, f, types)
+{
+    const flag_ops = get_flag_ops();
+    const cond_names = Object.keys(flag_ops);
+    for (const op of cond_names)
+    {
+        ops[`${prefix}${op}`] = f(()=>{ return flag_ops[op](); }, types);
+    }
 }
 
 /** operator functions **/
@@ -480,57 +509,15 @@ function get_ops()
     ops["test"] = make_logic( (x)=>{ return x[1] & x[0]; }, sd, false);
 
     // set operations
-    ops["sete"] = make_none( (x)=>{ return flag_ops["e"](); }, d);
-    ops["setne"] = make_none( (x)=>{ return flag_ops["ne"](); }, d);
-    ops["sets"] = make_none( (x)=>{ return flag_ops["s"](); }, d);
-    ops["setns"] = make_none( (x)=>{ return flag_ops["ns"](); }, d);
-    ops["setg"] = make_none( (x)=>{ return flag_ops["g"](); }, d);
-    ops["setge"] = make_none( (x)=>{ return flag_ops["ge"](); }, d);
-    ops["setl"] = make_none( (x)=>{ return flag_ops["l"](); }, d);
-    ops["setle"] = make_none( (x)=>{ return flag_ops["le"](); }, d);
+    make_cond_ops(ops, "set", make_none, ["R"]);
 
     // jump operations
-    ops["jmp"] = make_jump( ()=>{ return 1; });
-    ops["je"] = make_jump( ()=>{ return flag_ops["e"](); } );
-    ops["jne"] = make_jump( ()=>{ return flag_ops["ne"](); } );
-    ops["js"] = make_jump( ()=>{ return flag_ops["s"](); } );
-    ops["jns"] = make_jump( ()=>{ return flag_ops["ns"](); } );
-    ops["jg"] = make_jump( ()=>{ return flag_ops["g"](); } );
-    ops["jge"] = make_jump( ()=>{ return flag_ops["ge"](); } );
-    ops["jl"] = make_jump( ()=>{ return flag_ops["l"](); } );
-    ops["jle"] = make_jump( ()=>{ return flag_ops["le"](); } );
+    ops["jmp"] = make_jump( ()=>{ return 1; }, ["IL"]);
+    make_cond_ops(ops, "j", make_jump, ["IL"]);
 
     // move operations
-    ops["mov"] = make_move( ()=>{ return 1; });
-    ops["cmove"] = make_move( ()=>{ return flag_ops["e"](); } );
-    ops["cmovne"] = make_move( ()=>{ return flag_ops["ne"](); } );
-    ops["cmovs"] = make_move( ()=>{ return flag_ops["s"](); } );
-    ops["cmovns"] = make_move( ()=>{ return flag_ops["ns"](); } );
-    ops["cmovg"] = make_move( ()=>{ return flag_ops["g"](); } );
-    ops["cmovge"] = make_move( ()=>{ return flag_ops["ge"](); } );
-    ops["cmovl"] = make_move( ()=>{ return flag_ops["l"](); } );
-    ops["cmovle"] = make_move( ()=>{ return flag_ops["le"](); } );
-
-    return ops;
-}
-
-function get_flag_ops()
-{    
-    function bit(f)
-    {
-        return f() & 1;
-    }
-
-    let ops = {};
-
-    ops["e"] = ()=>{ return bit(()=>{ return flags["ZF"]; })};
-    ops["ne"] = ()=>{ return bit(()=>{ return ~flags["ZF"]; })};
-    ops["s"] = ()=>{ return bit(()=>{ return flags["SF"]; })};
-    ops["ns"] = ()=>{ return bit(()=>{ return ~flags["SF"]; })};
-    ops["g"] = ()=>{ return bit(()=>{ return ~(flags["SF"] ^ flags["OF"]) & ~flags["ZF"]; })};
-    ops["ge"] = ()=>{ return bit(()=>{ return ~(flags["SF"] ^ flags["OF"]); })};
-    ops["l"] = ()=>{ return bit(()=>{ return flags["SF"] ^ flags["OF"]; })};
-    ops["le"] = ()=>{ return bit(()=>{ return (flags["SF"] ^ flags["OF"]) | flags["ZF"]; })};
+    ops["mov"] = make_move( ()=>{ return 1; }, ["R", "R"]);
+    make_cond_ops(ops, "cmov", make_move, ["R", "R"]);
 
     return ops;
 }
