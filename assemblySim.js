@@ -100,34 +100,9 @@ function check_args(args, types)
     return true;
 }
 
-function init(code, input_args)
+function prepass(code)
 {
-    // initialize register values
-    const arg_regs = Object.keys(input_args);
-    for (const r of register_names)
-    {
-        let value = 0;
-        if (arg_regs.includes(r))
-        {
-            value = to_number(input_args[r]);
-            if (isNaN(value))
-            {
-                if(!debug)
-                    alert(`Error: Invalid input argument [%${r}]`);
-                return false;
-            }
-        }
-        registers[r] = value;
-    }
-
-    // clear flag values
-    for (const f of flag_names)
-    {
-        flags[f] = 0;
-    }
-
     // do a pass over the code to check syntax and record labels
-    labels = {};
     const lines = code.split("\n");
     for (ip = 0; ip < lines.length; ip++)
     {
@@ -156,9 +131,38 @@ function init(code, input_args)
         if (!check_args(tokens.slice(1), instructions[op][1]))
             return false;
     }
+    return true;
+}
+
+function init(input_args)
+{
+    // initialize register values
+    const arg_regs = Object.keys(input_args);
+    for (const r of register_names)
+    {
+        let value = 0;
+        if (arg_regs.includes(r))
+        {
+            value = to_number(input_args[r]);
+            if (isNaN(value))
+            {
+                if(!debug)
+                    alert(`Error: Invalid input argument [%${r}]`);
+                return false;
+            }
+        }
+        registers[r] = value;
+    }
+
+    // clear flag values
+    for (const f of flag_names)
+    {
+        flags[f] = 0;
+    }
     
     // reset stack and instruction pointer
     stack = [];
+    labels = {};
     ip = 0;
 
     return true;
@@ -174,7 +178,10 @@ function error(str)
 
 function parse(code, input_args = {}, maxIters = 10000)
 {
-    if (!init(code, input_args))
+    if (!prepass(code))
+        return false;
+
+    if (!init(input_args))
         return false;
 
     let count = 0;
