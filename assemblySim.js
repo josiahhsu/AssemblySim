@@ -409,6 +409,11 @@ function make_jump(cond, types=["IL"])
     return make_none((x)=>{ if (cond() == 1) ip = x[0];}, types, false);
 }
 
+function make_move(cond, types=["R", "R"])
+{
+    return make_none((x)=>{ if (cond() == 1) return x[0];}, types);
+}
+
 /** operator functions **/
 
 function get_ops()
@@ -462,9 +467,6 @@ function get_ops()
     // D ^ S
     ops["xor"] = make_logic( (x)=>{ return x[1] ^ x[0]; }, sd);
 
-    // D = S
-    ops["mov"] = make_none( (x)=>{ return x[0]; }, ["R","R"]);
-
     // increments %rsp, then pushes S onto stack at pos %rsp
     ops["push"] = make_none( (x)=>{ stack[++registers["rsp"]] = x[0]; }, ["IR"], false);
 
@@ -477,56 +479,37 @@ function get_ops()
     // compares flags based on S2 & S1
     ops["test"] = make_logic( (x)=>{ return x[1] & x[0]; }, sd, false);
 
-    // D = ZF
+    // set operations
     ops["sete"] = make_none( (x)=>{ return flag_ops["e"](); }, d);
-
-    // D = ~ZF
     ops["setne"] = make_none( (x)=>{ return flag_ops["ne"](); }, d);
-
-    // D = SF
     ops["sets"] = make_none( (x)=>{ return flag_ops["s"](); }, d);
-
-    // D = ~ZF
     ops["setns"] = make_none( (x)=>{ return flag_ops["ns"](); }, d);
-
-    // D = ~(SF ^ OF) & ~ZF
     ops["setg"] = make_none( (x)=>{ return flag_ops["g"](); }, d);
-
-    // D = ~(SF ^ OF)
     ops["setge"] = make_none( (x)=>{ return flag_ops["ge"](); }, d);
-
-    // D = SF ^ OF
     ops["setl"] = make_none( (x)=>{ return flag_ops["l"](); }, d);
-
-    // D = (SF ^ OF) | ZF
     ops["setle"] = make_none( (x)=>{ return flag_ops["le"](); }, d);
 
-    // jumps to line specified by operand
+    // jump operations
     ops["jmp"] = make_jump( ()=>{ return 1; });
-    
-    // jump condition: ZF
     ops["je"] = make_jump( ()=>{ return flag_ops["e"](); } );
-
-    // jump condition: ~ZF
     ops["jne"] = make_jump( ()=>{ return flag_ops["ne"](); } );
-
-    // jump condition: SF
     ops["js"] = make_jump( ()=>{ return flag_ops["s"](); } );
-
-    // jump condition: ~SF
     ops["jns"] = make_jump( ()=>{ return flag_ops["ns"](); } );
-
-    // jump condition: ~(SF^OF) & ~ZF
     ops["jg"] = make_jump( ()=>{ return flag_ops["g"](); } );
-
-    // jump condition: ~(SF^OF)
     ops["jge"] = make_jump( ()=>{ return flag_ops["ge"](); } );
-
-    // jump condition: (SF^OF)
     ops["jl"] = make_jump( ()=>{ return flag_ops["l"](); } );
-
-    // jump condition: (SF^OF) | ZF
     ops["jle"] = make_jump( ()=>{ return flag_ops["le"](); } );
+
+    // move operations
+    ops["mov"] = make_move( ()=>{ return 1; });
+    ops["cmove"] = make_move( ()=>{ return flag_ops["e"](); } );
+    ops["cmovne"] = make_move( ()=>{ return flag_ops["ne"](); } );
+    ops["cmovs"] = make_move( ()=>{ return flag_ops["s"](); } );
+    ops["cmovns"] = make_move( ()=>{ return flag_ops["ns"](); } );
+    ops["cmovg"] = make_move( ()=>{ return flag_ops["g"](); } );
+    ops["cmovge"] = make_move( ()=>{ return flag_ops["ge"](); } );
+    ops["cmovl"] = make_move( ()=>{ return flag_ops["l"](); } );
+    ops["cmovle"] = make_jump( ()=>{ return flag_ops["le"](); } );
 
     return ops;
 }
