@@ -324,7 +324,6 @@ function evaluate_args(args)
 }
 
 // Generic function for handling an instruction with n arguments.
-// The types parameter is a list of types that the arguments must match.
 // The flag parameter is a function that dictates how condition codes should be set.
 function handle_op(op, args, flag, store)
 {
@@ -422,13 +421,19 @@ function get_flag_ops()
     let ops = {};
 
     ops["e"] = ()=>{ return bit(()=>{ return flags["ZF"]; })};
+    ops["z"] = ops["e"];
     ops["ne"] = ()=>{ return bit(()=>{ return ~flags["ZF"]; })};
+    ops["nz"] = ops["ne"];
     ops["s"] = ()=>{ return bit(()=>{ return flags["SF"]; })};
     ops["ns"] = ()=>{ return bit(()=>{ return ~flags["SF"]; })};
     ops["g"] = ()=>{ return bit(()=>{ return ~(flags["SF"] ^ flags["OF"]) & ~flags["ZF"]; })};
+    ops["nle"] = ops["g"];
     ops["ge"] = ()=>{ return bit(()=>{ return ~(flags["SF"] ^ flags["OF"]); })};
+    ops["nl"] = ops["ge"];
     ops["l"] = ()=>{ return bit(()=>{ return flags["SF"] ^ flags["OF"]; })};
+    ops["nge"] = ops["l"];
     ops["le"] = ()=>{ return bit(()=>{ return (flags["SF"] ^ flags["OF"]) | flags["ZF"]; })};
+    ops["ng"] = ops["le"];
 
     return ops;
 }
