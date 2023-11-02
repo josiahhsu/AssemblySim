@@ -184,7 +184,7 @@ function prepass(code)
     for (const lo of label_operations)
     {
         ip = lo[1];
-        if (!check_line(lo[0].trim()))
+        if (!check_line(lo[0]))
             return false;
     }
 
