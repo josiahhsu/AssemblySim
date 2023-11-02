@@ -9,6 +9,28 @@ let flags = {};
 let ip = 0;
 debug = false; // used to disable alerts during testing
 
+function syntax_error(str)
+{
+    error("Syntax", str);
+}
+
+function runtime_error(str)
+{
+    error("Runtime", str);
+}
+
+function input_error(input)
+{
+    if (!debug)
+        alert(`Input error: Invalid input argument [%${input}]`);
+}
+
+function error(type, str)
+{
+    if (!debug)
+        alert(`${type} error on line ${ip}: ${str}`);
+}
+
 function to_32bit(x)
 {
     /*
@@ -82,7 +104,7 @@ function check_args(args, types)
     const n = types.length;
     if (args.length != n)
     {
-        error(`Expected ${n} arguments, found ${args.length}`);
+        syntax_error(`Expected ${n} arguments, found ${args.length}`);
         return false;
     }
     
@@ -92,7 +114,7 @@ function check_args(args, types)
         const t = types[i];
         if (!check_type(args[i], t))
         {
-            error(`Type of argument ${i} must be ${typenames[t]}`);
+            syntax_error(`Type of argument ${i} must be ${typenames[t]}`);
             return false;
         }
     }
@@ -124,7 +146,7 @@ function prepass(code)
         const op = tokens[0];
         if (!(op in instructions))
         {
-            error(`Unrecognized instruction [${op}]`);
+            syntax_error(`Unrecognized instruction [${op}]`);
             return false;
         }
 
@@ -147,8 +169,7 @@ function init(input_args)
             value = to_number(input_args[r]);
             if (isNaN(value))
             {
-                if(!debug)
-                    alert(`Error: Invalid input argument [%${r}]`);
+                input_error(r);
                 return false;
             }
         }
@@ -168,12 +189,6 @@ function init(input_args)
     return true;
 }
 
-function error(str)
-{
-    if (!debug)
-        alert(`Error on line ${ip}: ${str}`);
-}
-
 /** parsing functions **/
 
 function parse(code, input_args = {}, maxIters = 10000)
@@ -191,7 +206,7 @@ function parse(code, input_args = {}, maxIters = 10000)
     {
         if (count > maxIters)
         {
-            error(`Program exceeded ${maxIters} iterations. Terminating.`);
+            runtime_error(`Program exceeded ${maxIters} iterations. Terminating.`);
             return false;
         }
 
@@ -204,7 +219,7 @@ function parse(code, input_args = {}, maxIters = 10000)
         // control instruction error handling
         if (ip < 0 || ip >= len)
         {
-            error(`Invalid jump destination [${ip}]`)
+            runtime_error(`Invalid jump destination [${ip}]`)
             return false;
         }
 
@@ -288,7 +303,7 @@ function handle_op(op, args, flag, store)
         // verify that operation yielded valid result before storing
         if (isNaN(raw))
         {
-            error(`Operation with arguments [${values.join(", ")}] resulted in NaN`);
+            runtime_error(`Operation with arguments [${values.join(", ")}] resulted in NaN`);
             return false;
         }
         registers[args[args.length-1].substring(1)] = to_32bit(raw);
