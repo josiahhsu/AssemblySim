@@ -154,11 +154,11 @@ function prepass(code)
     for (ip = 0; ip < lines.length; ip++)
     {
         const line = lines[ip].trim();
-        if (line.match(/\..*:/))
+        if (/\..*:/.test(line))
         {        
             // if line is a valid label, record its position
             const label = line.substring(1, line.length-1);
-            if (label.match(/\s/))
+            if (/\s/.test(label))
             {
                 syntax_error(`Label [${label}] must not have spaces`);
                 return false;
@@ -171,7 +171,7 @@ function prepass(code)
             labels[label] = ip;
             continue;
         }
-        else if (line.match(/\.\w+/))
+        else if (/\.\w+/.test(line))
         {
             // defer checking label ops until all labels registered
             label_operations.push([line, ip]);
