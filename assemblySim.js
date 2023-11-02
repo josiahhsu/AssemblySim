@@ -282,6 +282,11 @@ function evaluate_args(args)
                 break;
             case '.':
                 // label
+                if (!(value in labels))
+                {
+                    runtime_error(`No label called [${a}]`);
+                    return null;
+                }
                 values.push(labels[value]);
                 break;
             default:

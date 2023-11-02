@@ -120,6 +120,7 @@ function result_tests()
         "jle": ["inc %r8\n cmp $0 %r8\n jle $4\n add $100 %rax\n cmp $1 %r8\n jle $7\n add $10 %rax\n cmp $2 %r8\n jle $10\n add $1 %rax\n add $3000 %rax", "3100"],
         "general comment": ["#this is a comment", "0"],
         "commented instruction": ["#add $15 %rax\n add $7 %rax", "7"],
+        "labeled jump": [".test:\n inc %rax\n cmp $5 %rax\n jne .test", "5"],
     };
 
     return [f, tests];
@@ -146,6 +147,8 @@ function error_tests()
         "Negative input argument": ["", {"rdi": -1}],
         "Floating-point input argument": ["", {"rdi": "0.1"}],
         "Div by 0": ["div $0 %rax"],
+        "Bad label": [".no_colon\ninc %rax"],
+        "Unknown label": ["inc %rax\n cmp $5 %rax\n jne .test"],
     };
 
     return [f, tests];
