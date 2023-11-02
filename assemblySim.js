@@ -258,7 +258,7 @@ function handle_op(op, args, types, flag, store)
     if (!check_args(args, types))
         return false;
 
-    const values = parse_args(args, types);
+    const values = parse_args(args);
     if (!values)
         return false;
 
