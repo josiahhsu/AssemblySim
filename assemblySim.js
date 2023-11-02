@@ -46,7 +46,7 @@ function to_32bit(x)
 function to_number(value)
 {
     const n = Number(value);
-    return (isNaN(n) || n < 0 || to_32bit(n) != n || Number(value) != n)? NaN : n;
+    return (isNaN(n) || to_32bit(n) != n || Number(value) != n)? NaN : n;
 }
 
 function is_noop(line)
@@ -300,7 +300,7 @@ function evaluate_args(args)
             case '$':
                 // immediate - value must be a positive 32-bit integer
                 const n = to_number(value);
-                if (isNaN(n))
+                if (isNaN(n) || n < 0)
                 {
                     runtime_error(`Immediate value [${a}] is not a positive 32-bit integer`);
                     return null;
