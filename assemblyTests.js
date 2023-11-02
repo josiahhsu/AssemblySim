@@ -21,10 +21,16 @@ function run_tests(test_suites)
     }
 
     const n = failures.length;
-    const msg = (n == 0)? `All tests passed!` : `${n} failed tests: ${failures}`;
-    console.log(msg);
+    const all_passed = (n == 0);
+    const msg = all_passed? `All tests passed!` : `${n} failed tests: ${failures}`;
+    all_passed? console.log(msg) : console.error(msg);
     alert(msg);
     debug = false;
+}
+
+function print_test_result(pass, expected, actual)
+{
+    pass? console.log("Passed!") : console.error(`FAILED: expected ${expected}, got ${actual}`);
 }
 
 /* 
@@ -36,7 +42,7 @@ function run_tests(test_suites)
 function test_equal(actual, expected)
 {
     const equal = (actual == expected);
-    console.log(equal? `Passed!` : `FAILED: expected ${expected}, got ${actual}`);
+    print_test_result(equal, expected, actual);
     return equal;    
 }
 
@@ -55,7 +61,7 @@ function flags_equal(expected)
         if (expected.includes(f) != set)
             equal = false;
     }
-    console.log(equal? `Passed!` : `FAILED: expected ${expected}, got ${actual}`);
+    print_test_result(equal, expected, actual);
     return equal;
 }
 
@@ -161,7 +167,7 @@ function flag_tests()
     {
         if (get_parse_result(params[0]) == "ERROR")
         {
-            console.log("FAILED: error in program execution")
+            console.error("FAILED: error in program execution")
             return false;
         }
         return flags_equal(params[1]);

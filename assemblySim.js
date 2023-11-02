@@ -27,7 +27,7 @@ function input_error(str)
 function error(type, str, line_num=true)
 {
     const error = `${type} error${line_num? ` on line ${ip}`:""}: ${str}`;
-    (debug)? console.log(error) : alert(error);
+    debug? console.warn(error) : alert(error);
 }
 
 function to_32bit(x)
