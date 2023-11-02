@@ -7,7 +7,7 @@ let labels = {};
 let registers = {};
 let flags = {};
 let ip = 0;
-debug = false; // used to disable alerts during testing
+let debug = false; // used to print errors instead of alerting during testing
 
 function syntax_error(str)
 {
@@ -19,18 +19,15 @@ function runtime_error(str)
     error("Runtime", str);
 }
 
-function input_error(input)
+function input_error(str)
 {
-    if (!debug)
-        alert(`Input error: Invalid input argument [%${input}]`);
+    error("Input", str, false);
 }
 
-function error(type, str)
+function error(type, str, line_num=true)
 {
-    if (!debug)
-        alert(`${type} error on line ${ip}: ${str}`);
-    else
-        console.log(`${type} error on line ${ip}: ${str}`)
+    const error = `${type} error${line_num? ` on line ${ip}`:""}: ${str}`;
+    (debug)? console.log(error) : alert(error);
 }
 
 function to_32bit(x)
@@ -206,10 +203,11 @@ function init(input_args)
         let value = 0;
         if (arg_regs.includes(r))
         {
-            value = to_number(input_args[r]);
+            const arg = input_args[r];
+            value = to_number(arg);
             if (isNaN(value))
             {
-                input_error(r);
+                input_error(`Invalid input argument [${arg}] for register [%${r}]`);
                 return false;
             }
         }
