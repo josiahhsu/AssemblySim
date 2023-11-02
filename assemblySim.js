@@ -154,11 +154,16 @@ function prepass(code)
     for (ip = 0; ip < lines.length; ip++)
     {
         const line = lines[ip].trim();
-        if (line.match(/\.\w+:/))
+        if (line.match(/\..*:/))
         {        
-            // if line is a label, record its position
+            // if line is a valid label, record its position
             const label = line.substring(1, line.length-1);
-            if (label in labels)
+            if (label.match(/\s/))
+            {
+                syntax_error(`Label [${label}] must not have spaces`);
+                return false;
+            }
+            else if (label in labels)
             {
                 syntax_error(`Label [${label}] defined multiple times`);
                 return false;
