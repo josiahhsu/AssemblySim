@@ -103,6 +103,7 @@ function check_args(args, types)
 function prepass(code)
 {
     // do a pass over the code to check syntax and record labels
+    labels = {};
     const lines = code.split("\n");
     for (ip = 0; ip < lines.length; ip++)
     {
@@ -162,7 +163,6 @@ function init(input_args)
     
     // reset stack and instruction pointer
     stack = [];
-    labels = {};
     ip = 0;
 
     return true;
