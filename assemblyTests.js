@@ -149,6 +149,7 @@ function error_tests()
         "Div by 0": ["div $0 %rax"],
         "Bad label": [".no_colon\ninc %rax"],
         "Unknown label": ["inc %rax\n cmp $5 %rax\n jne .test"],
+        "Duplicate label": [".dup:\n .dup:\n inc %rax"],
     };
 
     return [f, tests];
