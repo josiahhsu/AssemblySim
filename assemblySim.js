@@ -154,7 +154,7 @@ function prepass(code)
     for (ip = 0; ip < lines.length; ip++)
     {
         const line = lines[ip].trim();
-        if (line.match(/\.\w+/))
+        if (line.match(/\.\w+:/))
         {        
             // if line is a label, record its position
             labels[line.substring(1, line.length-1)] = ip;
