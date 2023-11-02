@@ -169,7 +169,7 @@ function prepass(code)
         else if (line.match(/\.\w+/))
         {
             // defer checking label ops until all labels registered
-            label_operations.push(line);
+            label_operations.push([line, ip]);
             continue;
         }
 
@@ -183,7 +183,8 @@ function prepass(code)
     // check label ops now that all labels are registered
     for (const lo of label_operations)
     {
-        if (!check_line(lo.trim()))
+        ip = lo[1];
+        if (!check_line(lo[0].trim()))
             return false;
     }
 
