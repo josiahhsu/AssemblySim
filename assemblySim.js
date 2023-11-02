@@ -411,7 +411,7 @@ function make_jump(cond, types=["IL"])
 
 function make_move(cond, types=["R", "R"])
 {
-    return make_none((x)=>{ if (cond() == 1) return x[0];}, types);
+    return make_none((x)=>{ return (cond() == 1)? x[0] : x[1];}, types);
 }
 
 /** operator functions **/
@@ -509,7 +509,7 @@ function get_ops()
     ops["cmovg"] = make_move( ()=>{ return flag_ops["g"](); } );
     ops["cmovge"] = make_move( ()=>{ return flag_ops["ge"](); } );
     ops["cmovl"] = make_move( ()=>{ return flag_ops["l"](); } );
-    ops["cmovle"] = make_jump( ()=>{ return flag_ops["le"](); } );
+    ops["cmovle"] = make_move( ()=>{ return flag_ops["le"](); } );
 
     return ops;
 }
