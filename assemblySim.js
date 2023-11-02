@@ -30,19 +30,8 @@ function to_number(value)
 
 function is_noop(line)
 {
-    // empty line - no-op
-    if (!line)
-        return true;
-
-    // comment - no-op
-    if (line[0] == "#")
-        return true;
-
-    // label - no-op
-    if (line[0] == "." && line[line.length - 1] == ":")
-        return true;
-
-    return false;
+    // empty lines, comments, and labels treated as no-ops
+    return (!line || line[0] == "#" || (line[0] == "." && line[line.length -1] == ":"));
 }
 
 /** operand parsing **/
