@@ -45,6 +45,72 @@ function is_noop(line)
     return false;
 }
 
+/** operand parsing **/
+
+function is_immediate(arg)
+{
+    return arg.charAt(0) == '$';
+}
+
+function is_register(arg)
+{
+    return arg.charAt(0) == '%' && register_names.includes(arg.substring(1));
+}
+
+function is_label(arg)
+{
+    return arg.charAt(0) == '.';
+}
+
+function check_type(arg, types)
+{
+    // check that argument is one of a list of types 
+    for (const c of types)
+    {
+        switch(c)
+        {
+            case "I":
+                if (is_immediate(arg))
+                    return true;
+                break;
+            case "R":
+                if (is_register(arg))
+                    return true;
+                break;
+            case "L":
+                if (is_label(arg))
+                    return true;
+                break;
+            default:
+                return false;
+        }
+    }
+    return false;
+}
+
+function check_args(args, types)
+{
+    const n = types.length;
+    if (args.length != n)
+    {
+        error(`Expected ${n} arguments, found ${args.length}`);
+        return false;
+    }
+    
+    const typenames = {"I":"Immediate", "R":"Register"};
+    for (var i = 0; i < n; i++)
+    {
+        const t = types[i];
+        if (!check_type(args[i], t))
+        {
+            error(`Type of argument ${i} must be ${typenames[t]}`);
+            return false;
+        }
+    }
+
+    return true;
+}
+
 function init(code, input_args)
 {
     // initialize register values
@@ -115,6 +181,8 @@ function error(str)
         alert(`Error on line ${ip}: ${str}`);
 }
 
+/** parsing functions **/
+
 function parse(code, input_args = {}, maxIters = 10000)
 {
     if (!init(code, input_args))
@@ -171,73 +239,7 @@ function parse_line(line)
     return instructions[tokens[0]][0](tokens.slice(1));
 }
 
-/** operand parsing **/
-
-function is_immediate(arg)
-{
-    return arg.charAt(0) == '$';
-}
-
-function is_register(arg)
-{
-    return arg.charAt(0) == '%' && register_names.includes(arg.substring(1));
-}
-
-function is_label(arg)
-{
-    return arg.charAt(0) == '.';
-}
-
-function check_type(arg, types)
-{
-    // check that argument is one of a list of types 
-    for (const c of types)
-    {
-        switch(c)
-        {
-            case "I":
-                if (is_immediate(arg))
-                    return true;
-                break;
-            case "R":
-                if (is_register(arg))
-                    return true;
-                break;
-            case "L":
-                if (is_label(arg))
-                    return true;
-                break;
-            default:
-                return false;
-        }
-    }
-    return false;
-}
-
-function check_args(args, types)
-{
-    const n = types.length;
-    if (args.length != n)
-    {
-        error(`Expected ${n} arguments, found ${args.length}`);
-        return false;
-    }
-    
-    const typenames = {"I":"Immediate", "R":"Register"};
-    for (var i = 0; i < n; i++)
-    {
-        const t = types[i];
-        if (!check_type(args[i], t))
-        {
-            error(`Type of argument ${i} must be ${typenames[t]}`);
-            return false;
-        }
-    }
-
-    return true;
-}
-
-function parse_args(args)
+function evaluate_args(args)
 {
     let values = [];
     for (const a of args)
@@ -277,7 +279,7 @@ function parse_args(args)
 // The flag parameter is a function that dictates how condition codes should be set.
 function handle_op(op, args, flag, store)
 {
-    const values = parse_args(args);
+    const values = evaluate_args(args);
     if (!values)
         return false;
 
