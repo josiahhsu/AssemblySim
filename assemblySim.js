@@ -29,6 +29,8 @@ function error(type, str)
 {
     if (!debug)
         alert(`${type} error on line ${ip}: ${str}`);
+    else
+        console.log(`${type} error on line ${ip}: ${str}`)
 }
 
 function to_32bit(x)
@@ -438,12 +440,11 @@ function get_ops()
     // pops stack value at pos %rsp into D, then decrements %rsp
     ops["pop"] = make_none( (x)=>{ return stack[registers["rsp"]--]; }, d);
     
-    // TODO: Fix test/cmp test cases since those shouldn't allow the destination to be immediate
     // compares flags based on S2 - S1
-    ops["cmp"] = make_arith( (x)=>{ return x[1] - x[0]; }, ["IR","IR"], false);
+    ops["cmp"] = make_arith( (x)=>{ return x[1] - x[0]; }, sd, false);
 
     // compares flags based on S2 & S1
-    ops["test"] = make_logic( (x)=>{ return x[1] & x[0]; }, ["IR","IR"], false);
+    ops["test"] = make_logic( (x)=>{ return x[1] & x[0]; }, sd, false);
 
     // D = ZF
     ops["sete"] = make_none( (x)=>{ return flag_ops["e"](); }, d);
