@@ -99,6 +99,12 @@ function check_type(arg, types)
     return false;
 }
 
+function types_to_names(types)
+{
+    const typenames = {"I":"Immediate", "R":"Register", "L":"Label"};
+    return types.split("").map((x)=>{return typenames[x];}).join(", ");
+}
+
 function check_args(args, types)
 {
     const n = types.length;
@@ -108,13 +114,12 @@ function check_args(args, types)
         return false;
     }
     
-    const typenames = {"I":"Immediate", "R":"Register"};
     for (var i = 0; i < n; i++)
     {
         const t = types[i];
         if (!check_type(args[i], t))
         {
-            syntax_error(`Type of argument ${i} must be ${typenames[t]}`);
+            syntax_error(`Argument ${i} must be one of the following: ${types_to_names(types[i])}`);
             return false;
         }
     }
