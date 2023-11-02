@@ -129,48 +129,58 @@ function check_args(args, types)
     return true;
 }
 
+function check_line(line)
+{
+    // check that instructions are valid
+    const tokens = line.split(/\s+/);
+    const op = tokens[0];
+    if (!(op in instructions))
+    {
+        syntax_error(`Unrecognized instruction [${op}]`);
+        return false;
+    }
+
+    // check that arguments for selected instruction are valid
+    return check_args(tokens.slice(1), instructions[op][1]);
+}
+
 function prepass(code)
 {
-    // record label names
-    const label_pattern = /\.\w+:/;
-    const label_names = code.match(label_pattern);
     labels = {};
-    if (label_names)
-    {
-        for (const c of label_names)
-        {
-            labels[c.substring(1, c.length-1)] = -1;
-        }
-    }
-    
+    label_operations = []
+
     // do a pass over the code to check syntax 
     const lines = code.split("\n");
     for (ip = 0; ip < lines.length; ip++)
     {
-        // if line is a label, record its position
         const line = lines[ip].trim();
-        if (line.match(label_pattern))
-        {
+        if (line.match(/\.\w+/))
+        {        
+            // if line is a label, record its position
             labels[line.substring(1, line.length-1)] = ip;
             continue;
         }
-
-        if(is_noop(line))
-            continue;
-
-        // check that instructions are valid
-        const tokens = line.split(/\s+/);
-        const op = tokens[0];
-        if (!(op in instructions))
+        else if (line.match(/\.\w+/))
         {
-            syntax_error(`Unrecognized instruction [${op}]`);
-            return false;
+            // defer checking label ops until all labels registered
+            label_operations.push(line);
+            continue;
         }
 
-        // check that arguments for selected instruction are valid
-        if (!check_args(tokens.slice(1), instructions[op][1]))
+        if (is_noop(line))
+            continue;
+
+        if (!check_line(line))
             return false;
     }
+
+    // check label ops now that all labels are registered
+    for (const lo of label_operations)
+    {
+        if (!check_line(lo.trim()))
+            return false;
+    }
+
     return true;
 }
 
