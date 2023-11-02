@@ -452,8 +452,6 @@ function make_cond_ops(ops, prefix, f, types)
 
 function get_ops()
 {
-    const flag_ops = get_flag_ops();
-
     let ops = {};
     const sd = ["IR", "R"];
     const d = ["R"];
