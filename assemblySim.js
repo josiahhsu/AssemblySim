@@ -72,7 +72,7 @@ function is_register(arg)
 
 function is_label(arg)
 {
-    return arg.charAt(0) == '.';
+    return arg.charAt(0) == '.' && arg.substring(1) in labels;
 }
 
 function check_type(arg, types)
@@ -131,20 +131,30 @@ function check_args(args, types)
 
 function prepass(code)
 {
-    // do a pass over the code to check syntax and record labels
+    // record label names
+    const label_pattern = /\.\w+:/;
+    const label_names = code.match(label_pattern);
     labels = {};
+    if (label_names)
+    {
+        for (const c of label_names)
+        {
+            labels[c.substring(1, c.length-1)] = -1;
+        }
+    }
+    
+    // do a pass over the code to check syntax 
     const lines = code.split("\n");
     for (ip = 0; ip < lines.length; ip++)
     {
-        // if line is a label, store it
+        // if line is a label, record its position
         const line = lines[ip].trim();
-        if (line.match(/\.\w+:/))
+        if (line.match(label_pattern))
         {
             labels[line.substring(1, line.length-1)] = ip;
             continue;
         }
 
-        // empty line - no-op
         if(is_noop(line))
             continue;
 
@@ -282,11 +292,6 @@ function evaluate_args(args)
                 break;
             case '.':
                 // label
-                if (!(value in labels))
-                {
-                    runtime_error(`No label called [${a}]`);
-                    return null;
-                }
                 values.push(labels[value]);
                 break;
             default:
