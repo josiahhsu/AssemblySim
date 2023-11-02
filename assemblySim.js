@@ -36,7 +36,7 @@ function to_32bit(x)
      * This takes advantage of two quirks of JavaScript:
      * 1. Bitwise operations only handle 32-bit operands.
      * 2. Javascript actually stores values as 64-bit floats.
-     * The following will convert x to a 32-bit int, ensure those 32 
+     * The following will convert x to a 32-bit int, ensure those 32
      * bits are unchanged, and then convert it back to 64 bits,
      * effectively restricting the value of x to a 32-bit range.
      */
@@ -74,7 +74,7 @@ function is_label(arg)
 
 function check_type(arg, types)
 {
-    // check that argument is one of a list of types 
+    // check that argument is one of a list of types
     for (const c of types)
     {
         switch(c)
@@ -112,7 +112,7 @@ function check_args(args, types)
         syntax_error(`Expected ${n} arguments, found ${args.length}`);
         return false;
     }
-    
+
     for (var i = 0; i < n; i++)
     {
         const t = types[i];
@@ -147,13 +147,13 @@ function prepass(code)
     labels = {};
     label_operations = []
 
-    // do a pass over the code to check syntax 
+    // do a pass over the code to check syntax
     const lines = code.split("\n");
     for (ip = 0; ip < lines.length; ip++)
     {
         const line = lines[ip].trim();
         if (/\..*:/.test(line))
-        {        
+        {
             // if line is a valid label, record its position
             const label = line.substring(0, line.length-1);
             if (/\s/.test(label))
@@ -219,7 +219,7 @@ function init(input_args)
     {
         flags[f] = 0;
     }
-    
+
     // reset stack and instruction pointer
     stack = [];
     ip = 0;
@@ -250,10 +250,10 @@ function parse(code, input_args = {}, maxIters = 10000)
 
         // store current instruction pointer value
         const current = ip;
-        
+
         if (!parse_line(lines[ip]))
             return false;
-        
+
         // control instruction error handling
         if (ip < 0 || ip >= len)
         {
@@ -333,7 +333,7 @@ function handle_op(op, args, flag, store)
 
     // calculate raw result
     const raw = op(values);
-    
+
     // convert to 32-bit result and store if needed
     if (store)
     {
@@ -342,13 +342,13 @@ function handle_op(op, args, flag, store)
         {
             runtime_error(`Operation with arguments [${values.join(", ")}] resulted in NaN`);
             return false;
-        }        
+        }
         registers[args[args.length-1].substring(1)] = to_32bit(raw);
     }
 
     // set condition codes
     flag(raw);
-    
+
     return true;
 }
 
@@ -380,7 +380,7 @@ function make_arith(f, types, store=true)
          * JavaScript's weird 64-bit storage/32-bit bitwise ops
          * restriction means we can check for overflow simply
          * by seeing if the raw result is within the 32-bit range.
-         */ 
+         */
         flags["OF"] = (to_32bit(raw) == raw)? 0 : 1;
     }
     return make_op(f, types, arith_flags, store);
@@ -412,7 +412,7 @@ function make_move(cond, types)
 }
 
 function get_flag_ops()
-{    
+{
     function bit(f)
     {
         return f() & 1;
@@ -458,7 +458,7 @@ function get_ops()
 
     // D + S
     ops["add"] = make_arith( (x)=>{ return x[1] + x[0]; }, sd);
- 
+
     // D - S
     ops["sub"] = make_arith( (x)=>{ return x[1] - x[0]; }, sd);
 
@@ -470,7 +470,7 @@ function get_ops()
 
     // D++
     ops["inc"] = make_arith( (x)=>{ return x[0] + 1; }, d);
-    
+
     // D--
     ops["dec"] = make_arith( (x)=>{ return x[0] - 1; }, d);
 
@@ -480,7 +480,7 @@ function get_ops()
 
     // D >> S (arithmetic, sign-extend)
     ops["sar"] = make_logic( (x)=>{ return x[1] >> x[0]; }, sd);
-    
+
     // D >> S (logical, zero-fill)
     ops["shr"] = make_logic( (x)=>{ return x[1] >>> x[0]; }, sd);
 
@@ -504,7 +504,7 @@ function get_ops()
 
     // pops stack value at pos %rsp into D, then decrements %rsp
     ops["pop"] = make_none( (x)=>{ return stack[registers["rsp"]--]; }, d);
-    
+
     // compares flags based on S2 - S1
     ops["cmp"] = make_arith( (x)=>{ return x[1] - x[0]; }, sd, false);
 

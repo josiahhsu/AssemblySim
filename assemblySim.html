@@ -12,7 +12,7 @@
 </head>
 <body>
     <div id="home"><a href="/github-pages/index.html">Back to Home</a></div>
-    <h2>Assembly Simulator</h2> 
+    <h2>Assembly Simulator</h2>
 
     <p>
         You can write programs in assembly code below.
@@ -26,7 +26,7 @@
         Register %rsp is the stack pointer, meaning the stack top is stored at the position specified by %rsp.
         Registers %rdi, %rsi, %rdx, %rcx, %r8, and %r9 can have their values set as input arguments.
     </p>
-    
+
     <p id="registers"></p>
     <p id="instructions"></p>
     <script>
@@ -54,11 +54,11 @@
                 <b>Input Arguments:</b><br>
                 <div id="input_args"></div>
                 <button onclick="run()">Run program</button><br>
-                <button onclick="run_all()">Run tests</button><br>        
+                <button onclick="run_all()">Run tests</button><br>
                 <p id="result"></p>
             </div>
         </div>
-        
+
         <script>
             function make_input_args()
             {
@@ -73,7 +73,7 @@
                     let input = document.createElement("input");
                     input.id=c;
                     params.appendChild(input);
-                    
+
                     params.appendChild(document.createElement("br"));
                 }
             }

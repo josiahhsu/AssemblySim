@@ -33,17 +33,17 @@ function print_test_result(pass, expected, actual)
     pass? console.log("Passed!") : console.error(`FAILED: expected ${expected}, got ${actual}`);
 }
 
-/* 
+/*
  * Test suite functions
- * Each function returns a test suite consisting of a test 
- * function and a dictionary mapping test names to tests. 
+ * Each function returns a test suite consisting of a test
+ * function and a dictionary mapping test names to tests.
  */
 
 function test_equal(actual, expected)
 {
     const equal = (actual == expected);
     print_test_result(equal, expected, actual);
-    return equal;    
+    return equal;
 }
 
 function flags_equal(expected)

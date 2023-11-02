@@ -36,7 +36,7 @@ label{
 #line-numbers span {
     counter-increment: linenumber;
 }
-  
+
 #line-numbers span::before {
     content: counter(linenumber);
     display: block;
