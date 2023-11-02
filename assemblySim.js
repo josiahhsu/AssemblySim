@@ -119,9 +119,10 @@ function check_args(args, types)
     for (var i = 0; i < n; i++)
     {
         const t = types[i];
-        if (!check_type(args[i], t))
+        const arg = args[i];
+        if (!check_type(arg, t))
         {
-            syntax_error(`Argument ${i} must be one of the following: [${types_to_names(t)}]`);
+            syntax_error(`Argument ${i} [${arg}] must be one of the following: [${types_to_names(t)}]`);
             return false;
         }
     }
