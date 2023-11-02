@@ -291,7 +291,7 @@ function evaluate_args(args)
                 const n = to_number(value);
                 if (isNaN(n))
                 {
-                    error(`Immediate value [${a}] is not a positive 32-bit integer`);
+                    runtime_error(`Immediate value [${a}] is not a positive 32-bit integer`);
                     return null;
                 }
                 values.push(n);
@@ -305,7 +305,7 @@ function evaluate_args(args)
                 values.push(labels[value]);
                 break;
             default:
-                error(`Invalid operand form [${a}]`);
+                runtime_error(`Invalid operand form [${a}]`);
                 return null;
         }
     }
