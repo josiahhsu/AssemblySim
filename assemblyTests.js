@@ -1,6 +1,6 @@
 function run_all()
 {
-    run_tests([result_tests(), error_tests(), flag_tests(), input_arg_tests()]);
+    run_tests([standard_tests(), input_arg_tests(), flag_tests(), cond_tests(), error_tests()]);
 }
 
 function run_tests(test_suites)
@@ -65,7 +65,7 @@ function flags_equal(expected)
     return equal;
 }
 
-function result_tests()
+function standard_tests()
 {
     function f(params)
     {
@@ -97,36 +97,79 @@ function result_tests()
         "xor": ["add $123791 %rax\n xor %rax %rax", "0"],
         "mov": ["add $8 %rsi\n mov %rsi %rax", "8"],
         "push-pop": ["push $30\n pop %rax", "30"],
-        "sete": ["inc %r8\n cmp $1 %r8\n sete %rax", "1"],
-        "setne": ["inc %r8\n cmp $1 %r8\n setne %rax", "0"],
-        "sets": ["inc %r8\n cmp $2 %r8\n sets %rax", "1"],
-        "setns": ["inc %r8\n cmp $2 %r8\n setns %rax", "0"],
-        "setg less": ["inc %r8\n cmp $2 %r8\n setg %rax", "0"],
-        "setg equal": ["inc %r8\n cmp $1 %r8\n setg %rax", "0"],
-        "setg greater": ["inc %r8\n cmp $0 %r8\n setg %rax", "1"],
-        "setge less": ["inc %r8\n cmp $2 %r8\n setge %rax", "0"],
-        "setge equal": ["inc %r8\n cmp $1 %r8\n setge %rax", "1"],
-        "setge greater": ["inc %r8\n cmp $0 %r8\n setge %rax", "1"],
-        "setl less": ["inc %r8\n cmp $2 %r8\n setl %rax", "1"],
-        "setl equal": ["inc %r8\n cmp $1 %r8\n setl %rax", "0"],
-        "setl greater": ["inc %r8\n cmp $0 %r8\n setl %rax", "0"],
-        "setle less": ["inc %r8\n cmp $2 %r8\n setle %rax", "1"],
-        "setle equal": ["inc %r8\n cmp $1 %r8\n setle %rax", "1"],
-        "setle greater": ["inc %r8\n cmp $0 %r8\n setle %rax", "0"],
         "jmp": ["jmp $2\n add $100 %rax\n add $5 %rax", "5"],
-        "je": ["inc %r8\n cmp $1 %r8\n je $4\n add $10 %rax\n inc %r8\n cmp $1 %r8\n je $8\n add $1 %rax\n add $200 %rax", "201"],
-        "jne": ["inc %r8\n cmp $1 %r8\n jne $4\n add $10 %rax\n inc %r8\n cmp $1 %r8\n jne $8\n add $1 %rax\n add $200 %rax", "210"],
-        "js": ["inc %r8\n cmp $2 %r8\n js $4\n add $10 %rax\n inc %r8\n cmp $1 %r8\n js $8\n add $1 %rax\n add $200 %rax", "201"],
-        "jns": ["inc %r8\n cmp $2 %r8\n jns $4\n add $10 %rax\n inc %r8\n cmp $1 %r8\n jns $8\n add $1 %rax\n add $200 %rax", "210"],
-        "jg": ["inc %r8\n cmp $0 %r8\n jg $4\n add $100 %rax\n cmp $1 %r8\n jg $7\n add $10 %rax\n cmp $2 %r8\n jg $10\n add $1 %rax\n add $3000 %rax", "3011"],
-        "jg OF": ["add $1 %r10\n shl $31 %r10\n cmp $1 %r10\n jg $5\n add $1 %rax\n add $10 %rax", "11"],
-        "jge": ["inc %r8\n cmp $0 %r8\n jge $4\n add $100 %rax\n cmp $1 %r8\n jge $7\n add $10 %rax\n cmp $2 %r8\n jge $10\n add $1 %rax\n add $3000 %rax", "3001"],
-        "jl": ["inc %r8\n cmp $0 %r8\n jl $4\n add $100 %rax\n cmp $1 %r8\n jl $7\n add $10 %rax\n cmp $2 %r8\n jl $10\n add $1 %rax\n add $3000 %rax", "3110"],
-        "jl OF": ["add $1 %r10\n shl $31 %r10\n cmp $1 %r10\n jl $5\n add $1 %rax\n add $10 %rax", "10"],
-        "jle": ["inc %r8\n cmp $0 %r8\n jle $4\n add $100 %rax\n cmp $1 %r8\n jle $7\n add $10 %rax\n cmp $2 %r8\n jle $10\n add $1 %rax\n add $3000 %rax", "3100"],
         "general comment": ["#this is a comment", "0"],
         "commented instruction": ["#add $15 %rax\n add $7 %rax", "7"],
         "labeled jump": [".test:\n inc %rax\n cmp $5 %rax\n jne .test", "5"],
+    };
+
+    return [f, tests];
+}
+
+function cond_tests()
+{
+    function f(params)
+    {
+        return test_equal(get_parse_result(params[0]), params[1]);
+    }
+
+    function make_set_test(op, value, result)
+    {
+        // compares the value to 1
+        return [`add $${value} %r8\n cmp $1 %r8\n ${op} %rax`, result];
+    }
+
+    function make_jump_test(op, value, result)
+    {
+        return [`add $${value} %r8\n cmp $1 %r8\n ${op} .end\n dec %rax\n .end:\n inc %rax`, result];
+    }
+
+    const tests = {
+        // sets
+        "sete true": make_set_test("sete", 1, "1"),
+        "sete false": make_set_test("sete", 0, "0"),
+        "setne true": make_set_test("setne", 0, "1"),
+        "setne false": make_set_test("setne", 1, "0"),
+        "sets true": make_set_test("sets", 0, "1"),
+        "sets false": make_set_test("sets", 2, "0"),
+        "setns true": make_set_test("setns", 2, "1"),
+        "setns false": make_set_test("setns", 0, "0"),
+        "setg less": make_set_test("setg", 0, "0"),
+        "setg equal": make_set_test("setg", 1, "0"),
+        "setg greater": make_set_test("setg", 2, "1"),
+        "setge less": make_set_test("setge", 0, "0"),
+        "setge equal": make_set_test("setge", 1, "1"),
+        "setge greater": make_set_test("setge", 2, "1"),
+        "setl less": make_set_test("setl", 0, "1"),
+        "setl equal": make_set_test("setl", 1, "0"),
+        "setl greater": make_set_test("setl", 2, "0"),
+        "setle less": make_set_test("setle", 0, "1"),
+        "setle equal": make_set_test("setle", 1, "1"),
+        "setle greater": make_set_test("setle", 2, "0"),
+
+        // jumps
+        "je true": make_jump_test("je", 1, "1"),
+        "je false": make_jump_test("je", 0, "0"),
+        "jne true": make_jump_test("jne", 0, "1"),
+        "jne false": make_jump_test("jne", 1, "0"),
+        "js true": make_jump_test("js", 0, "1"),
+        "js false": make_jump_test("js", 2, "0"),
+        "jns true": make_jump_test("jns", 2, "1"),
+        "jns false": make_jump_test("jns", 0, "0"),
+        "jg equal": make_jump_test("jg", 1, "0"),
+        "jg greater": make_jump_test("jg", 2, "1"),
+        "jge less": make_jump_test("jge", 0, "0"),
+        "jge equal": make_jump_test("jge", 1, "1"),
+        "jge greater": make_jump_test("jge", 2, "1"),
+        "jl less": make_jump_test("jl", 0, "1"),
+        "jl equal": make_jump_test("jl", 1, "0"),
+        "jl greater": make_jump_test("jl", 2, "0"),
+        "jle less": make_jump_test("jle", 0, "1"),
+        "jle equal": make_jump_test("jle", 1, "1"),
+        "jle greater": make_jump_test("jle", 2, "0"),
+
+        "jg OF": ["add $1 %r10\n shl $31 %r10\n cmp $1 %r10\n jg $5\n add $1 %rax\n add $10 %rax", "11"],
+        "jl OF": ["add $1 %r10\n shl $31 %r10\n cmp $1 %r10\n jl $5\n add $1 %rax\n add $10 %rax", "10"],
     };
 
     return [f, tests];
