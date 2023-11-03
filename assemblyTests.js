@@ -124,6 +124,12 @@ function cond_tests()
         return [`add $${value} %r8\n cmp $1 %r8\n ${op} .end\n dec %rax\n .end:\n inc %rax`, result];
     }
 
+    function make_cmov_test(op, value, result)
+    {
+        return [`inc %r9\n add $${value} %r8\n cmp %r9 %r8\n ${op} %r9 %rax`, result];
+    }
+
+
     const tests = {
         // sets
         "sete true": make_set_test("sete", 1, "1"),
@@ -170,6 +176,27 @@ function cond_tests()
 
         "jg OF": ["add $1 %r10\n shl $31 %r10\n cmp $1 %r10\n jg $5\n add $1 %rax\n add $10 %rax", "11"],
         "jl OF": ["add $1 %r10\n shl $31 %r10\n cmp $1 %r10\n jl $5\n add $1 %rax\n add $10 %rax", "10"],
+
+        // conditional moves
+        "cmove true": make_cmov_test("cmove", 1, "1"),
+        "cmove false": make_cmov_test("cmove", 0, "0"),
+        "cmovne true": make_cmov_test("cmovne", 0, "1"),
+        "cmovne false": make_cmov_test("cmovne", 1, "0"),
+        "cmovs true": make_cmov_test("cmovs", 0, "1"),
+        "cmovs false": make_cmov_test("cmovs", 2, "0"),
+        "cmovns true": make_cmov_test("cmovns", 2, "1"),
+        "cmovns false": make_cmov_test("cmovns", 0, "0"),
+        "cmovg equal": make_cmov_test("cmovg", 1, "0"),
+        "cmovg greater": make_cmov_test("cmovg", 2, "1"),
+        "cmovge less": make_cmov_test("cmovge", 0, "0"),
+        "cmovge equal": make_cmov_test("cmovge", 1, "1"),
+        "cmovge greater": make_cmov_test("cmovge", 2, "1"),
+        "cmovl less": make_cmov_test("cmovl", 0, "1"),
+        "cmovl equal": make_cmov_test("cmovl", 1, "0"),
+        "cmovl greater": make_cmov_test("cmovl", 2, "0"),
+        "cmovle less": make_cmov_test("cmovle", 0, "1"),
+        "cmovle equal": make_cmov_test("cmovle", 1, "1"),
+        "cmovle greater": make_cmov_test("cmovle", 2, "0"),
     };
 
     return [f, tests];
