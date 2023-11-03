@@ -117,8 +117,12 @@ function cond_tests()
     {
         tests[`${op}e true`] = f(`${op}e`, 1, "1");
         tests[`${op}e false`] = f(`${op}e`, 0, "0");
+        tests[`${op}z true`] = f(`${op}z`, 1, "1");
+        tests[`${op}z false`] = f(`${op}z`, 0, "0");
         tests[`${op}ne true`] = f(`${op}ne`, 0, "1");
         tests[`${op}ne false`] = f(`${op}ne`, 1, "0");
+        tests[`${op}nz true`] = f(`${op}nz`, 0, "1");
+        tests[`${op}nz false`] = f(`${op}nz`, 1, "0");
         tests[`${op}s true`] = f(`${op}s`, 0, "1");
         tests[`${op}s false`] = f(`${op}s`, 2, "0");
         tests[`${op}ns true`] = f(`${op}ns`, 2, "1");
@@ -126,15 +130,27 @@ function cond_tests()
         tests[`${op}g less`] = f(`${op}g`, 0, "0");
         tests[`${op}g equal`] = f(`${op}g`, 1, "0");
         tests[`${op}g greater`] = f(`${op}g`, 2, "1");
+        tests[`${op}nle less`] = f(`${op}nle`, 0, "0");
+        tests[`${op}nle equal`] = f(`${op}nle`, 1, "0");
+        tests[`${op}nle greater`] = f(`${op}nle`, 2, "1");
         tests[`${op}ge less`] = f(`${op}ge`, 0, "0");
         tests[`${op}ge equal`] = f(`${op}ge`, 1, "1");
         tests[`${op}ge greater`] = f(`${op}ge`, 2, "1");
+        tests[`${op}nl less`] = f(`${op}nl`, 0, "0");
+        tests[`${op}nl equal`] = f(`${op}nl`, 1, "1");
+        tests[`${op}nl greater`] = f(`${op}nl`, 2, "1");
         tests[`${op}l less`] = f(`${op}l`, 0, "1");
         tests[`${op}l equal`] = f(`${op}l`, 1, "0");
         tests[`${op}l greater`] = f(`${op}l`, 2, "0");
+        tests[`${op}nge less`] = f(`${op}nge`, 0, "1");
+        tests[`${op}nge equal`] = f(`${op}nge`, 1, "0");
+        tests[`${op}nge greater`] = f(`${op}nge`, 2, "0");
         tests[`${op}le less`] = f(`${op}le`, 0, "1");
         tests[`${op}le equal`] = f(`${op}le`, 1, "1");
         tests[`${op}le greater`] = f(`${op}le`, 2, "0");
+        tests[`${op}ng less`] = f(`${op}ng`, 0, "1");
+        tests[`${op}ng equal`] = f(`${op}ng`, 1, "1");
+        tests[`${op}ng greater`] = f(`${op}ng`, 2, "0");
     }
 
     let tests = {};
