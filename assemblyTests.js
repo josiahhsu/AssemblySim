@@ -113,91 +113,52 @@ function cond_tests()
         return test_equal(get_parse_result(params[0]), params[1]);
     }
 
+    function make_cond_test(tests, f, op)
+    {
+        tests[`${op}e true`] = f(`${op}e`, 1, "1");
+        tests[`${op}e false`] = f(`${op}e`, 0, "0");
+        tests[`${op}ne true`] = f(`${op}ne`, 0, "1");
+        tests[`${op}ne false`] = f(`${op}ne`, 1, "0");
+        tests[`${op}s true`] = f(`${op}s`, 0, "1");
+        tests[`${op}s false`] = f(`${op}s`, 2, "0");
+        tests[`${op}ns true`] = f(`${op}ns`, 2, "1");
+        tests[`${op}ns false`] = f(`${op}ns`, 0, "0");
+        tests[`${op}g less`] = f(`${op}g`, 0, "0");
+        tests[`${op}g equal`] = f(`${op}g`, 1, "0");
+        tests[`${op}g greater`] = f(`${op}g`, 2, "1");
+        tests[`${op}ge less`] = f(`${op}ge`, 0, "0");
+        tests[`${op}ge equal`] = f(`${op}ge`, 1, "1");
+        tests[`${op}ge greater`] = f(`${op}ge`, 2, "1");
+        tests[`${op}l less`] = f(`${op}l`, 0, "1");
+        tests[`${op}l equal`] = f(`${op}l`, 1, "0");
+        tests[`${op}l greater`] = f(`${op}l`, 2, "0");
+        tests[`${op}le less`] = f(`${op}le`, 0, "1");
+        tests[`${op}le equal`] = f(`${op}le`, 1, "1");
+        tests[`${op}le greater`] = f(`${op}le`, 2, "0");
+    }
+
+    let tests = {};
     function make_set_test(op, value, result)
     {
         // compares the value to 1
         return [`add $${value} %r8\n cmp $1 %r8\n ${op} %rax`, result];
     }
+    make_cond_test(tests, make_set_test, "set");
 
     function make_jump_test(op, value, result)
     {
         return [`add $${value} %r8\n cmp $1 %r8\n ${op} .end\n dec %rax\n .end:\n inc %rax`, result];
     }
+    make_cond_test(tests, make_jump_test, "j");
 
     function make_cmov_test(op, value, result)
     {
         return [`inc %r9\n add $${value} %r8\n cmp %r9 %r8\n ${op} %r9 %rax`, result];
     }
+    make_cond_test(tests, make_cmov_test, "cmov");
 
-
-    const tests = {
-        // sets
-        "sete true": make_set_test("sete", 1, "1"),
-        "sete false": make_set_test("sete", 0, "0"),
-        "setne true": make_set_test("setne", 0, "1"),
-        "setne false": make_set_test("setne", 1, "0"),
-        "sets true": make_set_test("sets", 0, "1"),
-        "sets false": make_set_test("sets", 2, "0"),
-        "setns true": make_set_test("setns", 2, "1"),
-        "setns false": make_set_test("setns", 0, "0"),
-        "setg less": make_set_test("setg", 0, "0"),
-        "setg equal": make_set_test("setg", 1, "0"),
-        "setg greater": make_set_test("setg", 2, "1"),
-        "setge less": make_set_test("setge", 0, "0"),
-        "setge equal": make_set_test("setge", 1, "1"),
-        "setge greater": make_set_test("setge", 2, "1"),
-        "setl less": make_set_test("setl", 0, "1"),
-        "setl equal": make_set_test("setl", 1, "0"),
-        "setl greater": make_set_test("setl", 2, "0"),
-        "setle less": make_set_test("setle", 0, "1"),
-        "setle equal": make_set_test("setle", 1, "1"),
-        "setle greater": make_set_test("setle", 2, "0"),
-
-        // jumps
-        "je true": make_jump_test("je", 1, "1"),
-        "je false": make_jump_test("je", 0, "0"),
-        "jne true": make_jump_test("jne", 0, "1"),
-        "jne false": make_jump_test("jne", 1, "0"),
-        "js true": make_jump_test("js", 0, "1"),
-        "js false": make_jump_test("js", 2, "0"),
-        "jns true": make_jump_test("jns", 2, "1"),
-        "jns false": make_jump_test("jns", 0, "0"),
-        "jg equal": make_jump_test("jg", 1, "0"),
-        "jg greater": make_jump_test("jg", 2, "1"),
-        "jge less": make_jump_test("jge", 0, "0"),
-        "jge equal": make_jump_test("jge", 1, "1"),
-        "jge greater": make_jump_test("jge", 2, "1"),
-        "jl less": make_jump_test("jl", 0, "1"),
-        "jl equal": make_jump_test("jl", 1, "0"),
-        "jl greater": make_jump_test("jl", 2, "0"),
-        "jle less": make_jump_test("jle", 0, "1"),
-        "jle equal": make_jump_test("jle", 1, "1"),
-        "jle greater": make_jump_test("jle", 2, "0"),
-
-        "jg OF": ["add $1 %r10\n shl $31 %r10\n cmp $1 %r10\n jg $5\n add $1 %rax\n add $10 %rax", "11"],
-        "jl OF": ["add $1 %r10\n shl $31 %r10\n cmp $1 %r10\n jl $5\n add $1 %rax\n add $10 %rax", "10"],
-
-        // conditional moves
-        "cmove true": make_cmov_test("cmove", 1, "1"),
-        "cmove false": make_cmov_test("cmove", 0, "0"),
-        "cmovne true": make_cmov_test("cmovne", 0, "1"),
-        "cmovne false": make_cmov_test("cmovne", 1, "0"),
-        "cmovs true": make_cmov_test("cmovs", 0, "1"),
-        "cmovs false": make_cmov_test("cmovs", 2, "0"),
-        "cmovns true": make_cmov_test("cmovns", 2, "1"),
-        "cmovns false": make_cmov_test("cmovns", 0, "0"),
-        "cmovg equal": make_cmov_test("cmovg", 1, "0"),
-        "cmovg greater": make_cmov_test("cmovg", 2, "1"),
-        "cmovge less": make_cmov_test("cmovge", 0, "0"),
-        "cmovge equal": make_cmov_test("cmovge", 1, "1"),
-        "cmovge greater": make_cmov_test("cmovge", 2, "1"),
-        "cmovl less": make_cmov_test("cmovl", 0, "1"),
-        "cmovl equal": make_cmov_test("cmovl", 1, "0"),
-        "cmovl greater": make_cmov_test("cmovl", 2, "0"),
-        "cmovle less": make_cmov_test("cmovle", 0, "1"),
-        "cmovle equal": make_cmov_test("cmovle", 1, "1"),
-        "cmovle greater": make_cmov_test("cmovle", 2, "0"),
-    };
+    tests["jg OF"] = ["add $1 %r10\n shl $31 %r10\n cmp $1 %r10\n jg $5\n add $1 %rax\n add $10 %rax", "11"];
+    tests["jl OF"] = ["add $1 %r10\n shl $31 %r10\n cmp $1 %r10\n jl $5\n add $1 %rax\n add $10 %rax", "10"];
 
     return [f, tests];
 }
