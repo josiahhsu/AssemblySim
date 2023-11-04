@@ -467,7 +467,8 @@ function get_ops()
     function div(x)
     {
         registers["rdx"] = registers["rax"] % x[0];
-        registers["rax"] = ((registers["rax"] / x[0]) | 0);
+        // ensure quotient isn't floating point
+        registers["rax"] = to_32bit(registers["rax"] / x[0]);
     }
     ops["div"] = make_arith( div, ["IR"], false);
 
