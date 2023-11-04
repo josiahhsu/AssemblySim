@@ -157,7 +157,7 @@ function cond_tests()
         tests[`${op}ng less`] = [template(`ng`, 0), "1"];
         tests[`${op}ng equal`] = [template(`ng`, 1), "1"];
         tests[`${op}ng greater`] = [template(`ng`, 2), "0"];
-    }
+    };
 
     let tests = {};
     function set_template(suffix, value)
@@ -219,7 +219,7 @@ function flag_tests()
     {
         if (get_parse_result(params[0]) == "ERROR")
         {
-            console.error("FAILED: error in program execution")
+            console.error("FAILED: error in program execution");
             return false;
         }
         return flags_equal(params[1]);

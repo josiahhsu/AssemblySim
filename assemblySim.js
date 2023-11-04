@@ -145,7 +145,7 @@ function check_line(line)
 function prepass(code)
 {
     labels = {};
-    label_operations = []
+    label_operations = [];
 
     // do a pass over the code to check syntax
     const lines = code.split("\n");
@@ -275,7 +275,7 @@ function get_parse_result(code, args)
     // if parsing successful, get return value stored in rax register
     if (parse(code, args))
         return String(registers["rax"]);
-    return "ERROR"
+    return "ERROR";
 }
 
 function parse_line(line)
@@ -494,7 +494,7 @@ function get_ops()
     ops["or"] = make_logic( (x)=>{ return x[1] | x[0]; }, sd);
 
     // ~D
-    ops["not"] = make_logic( (x)=>{ return ~x[0]; }, d)
+    ops["not"] = make_logic( (x)=>{ return ~x[0]; }, d);
 
     // D ^ S
     ops["xor"] = make_logic( (x)=>{ return x[1] ^ x[0]; }, sd);
