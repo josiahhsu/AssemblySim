@@ -113,65 +113,71 @@ function cond_tests()
         return test_equal(get_parse_result(params[0]), params[1]);
     }
 
-    function make_cond_test(tests, f, op)
+    /*
+     * Generates all conditional tests for a given op.
+     * template(suffix, value) is a function that generates code for an instruction.
+     * The instruction in the template will change depending on the provided suffix.
+     * Template tests will compare the passed-in value to 1.
+     */
+    function make_cond_test(tests, template, op)
     {
-        tests[`${op}e true`] = f(`${op}e`, 1, "1");
-        tests[`${op}e false`] = f(`${op}e`, 0, "0");
-        tests[`${op}z true`] = f(`${op}z`, 1, "1");
-        tests[`${op}z false`] = f(`${op}z`, 0, "0");
-        tests[`${op}ne true`] = f(`${op}ne`, 0, "1");
-        tests[`${op}ne false`] = f(`${op}ne`, 1, "0");
-        tests[`${op}nz true`] = f(`${op}nz`, 0, "1");
-        tests[`${op}nz false`] = f(`${op}nz`, 1, "0");
-        tests[`${op}s true`] = f(`${op}s`, 0, "1");
-        tests[`${op}s false`] = f(`${op}s`, 2, "0");
-        tests[`${op}ns true`] = f(`${op}ns`, 2, "1");
-        tests[`${op}ns false`] = f(`${op}ns`, 0, "0");
-        tests[`${op}g less`] = f(`${op}g`, 0, "0");
-        tests[`${op}g equal`] = f(`${op}g`, 1, "0");
-        tests[`${op}g greater`] = f(`${op}g`, 2, "1");
-        tests[`${op}nle less`] = f(`${op}nle`, 0, "0");
-        tests[`${op}nle equal`] = f(`${op}nle`, 1, "0");
-        tests[`${op}nle greater`] = f(`${op}nle`, 2, "1");
-        tests[`${op}ge less`] = f(`${op}ge`, 0, "0");
-        tests[`${op}ge equal`] = f(`${op}ge`, 1, "1");
-        tests[`${op}ge greater`] = f(`${op}ge`, 2, "1");
-        tests[`${op}nl less`] = f(`${op}nl`, 0, "0");
-        tests[`${op}nl equal`] = f(`${op}nl`, 1, "1");
-        tests[`${op}nl greater`] = f(`${op}nl`, 2, "1");
-        tests[`${op}l less`] = f(`${op}l`, 0, "1");
-        tests[`${op}l equal`] = f(`${op}l`, 1, "0");
-        tests[`${op}l greater`] = f(`${op}l`, 2, "0");
-        tests[`${op}nge less`] = f(`${op}nge`, 0, "1");
-        tests[`${op}nge equal`] = f(`${op}nge`, 1, "0");
-        tests[`${op}nge greater`] = f(`${op}nge`, 2, "0");
-        tests[`${op}le less`] = f(`${op}le`, 0, "1");
-        tests[`${op}le equal`] = f(`${op}le`, 1, "1");
-        tests[`${op}le greater`] = f(`${op}le`, 2, "0");
-        tests[`${op}ng less`] = f(`${op}ng`, 0, "1");
-        tests[`${op}ng equal`] = f(`${op}ng`, 1, "1");
-        tests[`${op}ng greater`] = f(`${op}ng`, 2, "0");
+        tests[`${op}e true`] = [template(`e`, 1), "1"];
+        tests[`${op}e false`] = [template(`e`, 0), "0"];
+        tests[`${op}z true`] = [template(`z`, 1), "1"];
+        tests[`${op}z false`] = [template(`z`, 0), "0"];
+        tests[`${op}ne true`] = [template(`ne`, 0), "1"];
+        tests[`${op}ne false`] = [template(`ne`, 1), "0"];
+        tests[`${op}nz true`] = [template(`nz`, 0), "1"];
+        tests[`${op}nz false`] = [template(`nz`, 1), "0"];
+        tests[`${op}s true`] = [template(`s`, 0), "1"];
+        tests[`${op}s false`] = [template(`s`, 2), "0"];
+        tests[`${op}ns true`] = [template(`ns`, 2), "1"];
+        tests[`${op}ns false`] = [template(`ns`, 0), "0"];
+        tests[`${op}g less`] = [template(`g`, 0), "0"];
+        tests[`${op}g equal`] = [template(`g`, 1), "0"];
+        tests[`${op}g greater`] = [template(`g`, 2), "1"];
+        tests[`${op}nle less`] = [template(`nle`, 0), "0"];
+        tests[`${op}nle equal`] = [template(`nle`, 1), "0"];
+        tests[`${op}nle greater`] = [template(`nle`, 2), "1"];
+        tests[`${op}ge less`] = [template(`ge`, 0), "0"];
+        tests[`${op}ge equal`] = [template(`ge`, 1), "1"];
+        tests[`${op}ge greater`] = [template(`ge`, 2), "1"];
+        tests[`${op}nl less`] = [template(`nl`, 0), "0"];
+        tests[`${op}nl equal`] = [template(`nl`, 1), "1"];
+        tests[`${op}nl greater`] = [template(`nl`, 2), "1"];
+        tests[`${op}l less`] = [template(`l`, 0), "1"];
+        tests[`${op}l equal`] = [template(`l`, 1), "0"];
+        tests[`${op}l greater`] = [template(`l`, 2), "0"];
+        tests[`${op}nge less`] = [template(`nge`, 0), "1"];
+        tests[`${op}nge equal`] = [template(`nge`, 1), "0"];
+        tests[`${op}nge greater`] = [template(`nge`, 2), "0"];
+        tests[`${op}le less`] = [template(`le`, 0), "1"];
+        tests[`${op}le equal`] = [template(`le`, 1), "1"];
+        tests[`${op}le greater`] = [template(`le`, 2), "0"];
+        tests[`${op}ng less`] = [template(`ng`, 0), "1"];
+        tests[`${op}ng equal`] = [template(`ng`, 1), "1"];
+        tests[`${op}ng greater`] = [template(`ng`, 2), "0"];
     }
 
     let tests = {};
-    function make_set_test(op, value, result)
+    function set_template(suffix, value)
     {
         // compares the value to 1
-        return [`add $${value} %r8\n cmp $1 %r8\n ${op} %rax`, result];
+        return `add $${value} %r8\n cmp $1 %r8\n set${suffix} %rax`;
     }
-    make_cond_test(tests, make_set_test, "set");
+    make_cond_test(tests, set_template, "set");
 
-    function make_jump_test(op, value, result)
+    function jump_template(suffix, value)
     {
-        return [`add $${value} %r8\n cmp $1 %r8\n ${op} .end\n dec %rax\n .end:\n inc %rax`, result];
+        return `add $${value} %r8\n cmp $1 %r8\n j${suffix} .end\n dec %rax\n .end:\n inc %rax`;
     }
-    make_cond_test(tests, make_jump_test, "j");
+    make_cond_test(tests, jump_template, "j");
 
-    function make_cmov_test(op, value, result)
+    function cmov_template(suffix, value)
     {
-        return [`inc %r9\n add $${value} %r8\n cmp %r9 %r8\n ${op} %r9 %rax`, result];
+        return `inc %r9\n add $${value} %r8\n cmp %r9 %r8\n cmov${suffix} %r9 %rax`;
     }
-    make_cond_test(tests, make_cmov_test, "cmov");
+    make_cond_test(tests, cmov_template, "cmov");
 
     tests["jg OF"] = ["add $1 %r10\n shl $31 %r10\n cmp $1 %r10\n jg $5\n add $1 %rax\n add $10 %rax", "11"];
     tests["jl OF"] = ["add $1 %r10\n shl $31 %r10\n cmp $1 %r10\n jl $5\n add $1 %rax\n add $10 %rax", "10"];
