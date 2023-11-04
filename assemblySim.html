@@ -37,6 +37,7 @@
     <b>Examples:</b>
     <select id="examples">
         <option value="abs">Abs</option>
+        <option value="div">Div</option>
         <option value="pow">Pow</option>
     </select>
     <button onclick="load_example()">Load Example</button>
@@ -112,6 +113,15 @@
                             "jg .end",
                             "neg %rax",
                             ".end:"].join("\n");
+                        break;
+                    case "div":
+                        value = [
+                            "# Uncomment the last line for mod instead",
+                            "# div: returns %rdi / %rsi",
+                            "add %rdi %rax",
+                            "div %rsi",
+                            "# mod: %rdi % %rsi",
+                            "# mov %rdx %rax"].join("\n");
                         break;
                     case "pow":
                         value = [
