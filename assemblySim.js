@@ -462,8 +462,14 @@ function get_ops()
     // D * S
     ops["mul"] = make_arith( (x)=>{ return x[1] * x[0]; }, sd);
 
-    // D / S
-    ops["div"] = make_arith( (x)=>{ return Math.floor(x[1] / x[0]); }, sd);
+    // Special case for division:
+    // %rdx = %rax % S, %rax = %rax / S
+    function div(x)
+    {
+        registers["rdx"] = registers["rax"] % x[0];
+        registers["rax"] = ((registers["rax"] / x[0]) | 0);
+    }
+    ops["div"] = make_arith( div, ["IR"], false);
 
     // D++
     ops["inc"] = make_arith( (x)=>{ return x[0] + 1; }, d);
