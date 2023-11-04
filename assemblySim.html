@@ -112,7 +112,7 @@
                             "cmp $0 %rax",
                             "jg .end",
                             "neg %rax",
-                            ".end:"].join("\n");
+                            ".end:"];
                         break;
                     case "div":
                         value = [
@@ -121,7 +121,7 @@
                             "add %rdi %rax",
                             "div %rsi",
                             "# mod: %rdi % %rsi",
-                            "# mov %rdx %rax"].join("\n");
+                            "# mov %rdx %rax"];
                         break;
                     case "pow":
                         value = [
@@ -143,10 +143,10 @@
                             "jmp .loop",
                             "# move final result to %rax",
                             ".end:",
-                            "mov %r10 %rax"].join("\n");
+                            "mov %r10 %rax"];
                         break;
                 }
-                document.getElementById('code').value = value;
+                document.getElementById('code').value = value.join("\n");
                 add_line_nums();
             }
 
