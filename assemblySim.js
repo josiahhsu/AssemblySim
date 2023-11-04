@@ -315,9 +315,6 @@ function evaluate_args(args)
                 // label
                 values.push(labels[a]);
                 break;
-            default:
-                runtime_error(`Invalid operand form [${a}]`);
-                return null;
         }
     }
     return values;
