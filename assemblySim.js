@@ -152,7 +152,7 @@ function prepass(code)
     for (ip = 0; ip < lines.length; ip++)
     {
         const line = lines[ip].trim();
-        if (/\..*:/.test(line))
+        if (/^\..*:/.test(line))
         {
             // if line is a valid label, record its position
             const label = line.substring(0, line.length-1);
