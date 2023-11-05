@@ -59,7 +59,9 @@ function is_noop(line)
 
 function is_immediate(arg)
 {
-    return arg.charAt(0) == '$';
+    const imm = arg.charAt(0) == '$';
+    const n = to_number(arg.substring(1));
+    return imm && !(isNaN(n) || n < 0);
 }
 
 function is_register(arg)
@@ -293,19 +295,12 @@ function evaluate_args(args)
     let values = [];
     for (const a of args)
     {
-        const id = a.charAt(0);
         const value = a.substring(1);
-        switch(id)
+        switch(a.charAt(0))
         {
             case '$':
-                // immediate - value must be a positive 32-bit integer
-                const n = to_number(value);
-                if (isNaN(n) || n < 0)
-                {
-                    runtime_error(`Immediate value [${a}] is not a positive 32-bit integer`);
-                    return null;
-                }
-                values.push(n);
+                // immediate
+                values.push(to_number(value));
                 break;
             case '%':
                 // register
