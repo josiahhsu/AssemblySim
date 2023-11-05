@@ -267,9 +267,7 @@ function parse(code, input_args = {}, maxIters = 10000)
 function get_parse_result(code, args)
 {
     // if parsing successful, get return value stored in rax register
-    if (parse(code, args))
-        return String(registers["rax"]);
-    return "ERROR";
+    return (parse(code, args))? String(registers["rax"]) : "ERROR";
 }
 
 function parse_line(line)
