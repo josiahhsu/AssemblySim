@@ -223,7 +223,7 @@ function init(input_args)
 
 /** parsing functions **/
 
-function parse(code, input_args = {}, maxIters = 10000)
+function parse(code, input_args={}, max_iters=10000)
 {
     if (!prepass(code))
         return false;
@@ -236,9 +236,9 @@ function parse(code, input_args = {}, maxIters = 10000)
     const len = lines.length;
     while (ip < len)
     {
-        if (count > maxIters)
+        if (count > max_iters)
         {
-            runtime_error(`Program exceeded ${maxIters} iterations. Terminating.`);
+            runtime_error(`Program exceeded ${max_iters} iterations. Terminating.`);
             return false;
         }
 
@@ -336,7 +336,7 @@ function handle_op(op, args, flag, store)
 
 /** Wrappers and helpers for making operator functions. */
 
-function make_op(f,types,flag,store)
+function make_op(f, types, flag, store)
 {
     return [(args)=>{ return handle_op(f, args, flag, store); }, types];
 }
