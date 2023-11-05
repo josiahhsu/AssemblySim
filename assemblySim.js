@@ -46,7 +46,7 @@ function to_32bit(x)
 function to_number(value)
 {
     const n = Number(value);
-    return (isNaN(n) || to_32bit(n) != n || Number(value) != n)? NaN : n;
+    return (to_32bit(n) == n)? n : NaN;
 }
 
 function is_noop(line)
