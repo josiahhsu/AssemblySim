@@ -59,9 +59,8 @@ function is_noop(line)
 
 function is_immediate(arg)
 {
-    const imm = arg.charAt(0) == '$';
     const n = to_number(arg.substring(1));
-    return imm && !(isNaN(n) || n < 0);
+    return arg.charAt(0) == '$' && !(isNaN(n) || n < 0);
 }
 
 function is_register(arg)
@@ -192,20 +191,20 @@ function init(input_args)
 {
     // initialize register values
     const arg_regs = Object.keys(input_args);
-    for (const r of register_names)
+    for (const reg of register_names)
     {
         let value = 0;
-        if (arg_regs.includes(r))
+        if (arg_regs.includes(reg))
         {
-            const arg = input_args[r];
+            const arg = input_args[reg];
             value = to_number(arg);
             if (isNaN(value))
             {
-                input_error(`Invalid input argument [${arg}] for register [%${r}]`);
+                input_error(`Invalid input argument [${arg}] for register [%${reg}]`);
                 return false;
             }
         }
-        registers[r] = value;
+        registers[reg] = value;
     }
 
     // clear flag values
