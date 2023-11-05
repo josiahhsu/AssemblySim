@@ -74,33 +74,25 @@ function is_label(arg)
     return arg.charAt(0) == '.' && arg in labels;
 }
 
+function get_arg_type(arg)
+{
+    if (is_immediate(arg))
+        return "I"; // immediate
+    else if (is_register(arg))
+        return "R"; // register
+    else if (is_label(arg))
+        return "L"; // label
+    else
+        return "E"; // error
+}
+
 function check_type(arg, types)
 {
     // check that argument is one of a list of types
-    for (const c of types)
-    {
-        switch(c)
-        {
-            case "I":
-                if (is_immediate(arg))
-                    return true;
-                break;
-            case "R":
-                if (is_register(arg))
-                    return true;
-                break;
-            case "L":
-                if (is_label(arg))
-                    return true;
-                break;
-            default:
-                return false;
-        }
-    }
-    return false;
+    return RegExp(get_arg_type(arg)).test(types);
 }
 
-function types_to_names(types)
+function arg_types_to_names(types)
 {
     const typenames = {"I":"Immediate", "R":"Register", "L":"Label"};
     return types.split("").map((x)=>{return typenames[x];}).join(", ");
@@ -121,7 +113,7 @@ function check_args(args, types)
         const arg = args[i];
         if (!check_type(arg, t))
         {
-            syntax_error(`Argument ${i} [${arg}] must be one of the following: [${types_to_names(t)}]`);
+            syntax_error(`Argument ${i} [${arg}] must be one of the following: [${arg_types_to_names(t)}]`);
             return false;
         }
     }
@@ -293,22 +285,22 @@ function parse_line(line)
 function evaluate_args(args)
 {
     let values = [];
-    for (const a of args)
+    for (const arg of args)
     {
-        const value = a.substring(1);
-        switch(a.charAt(0))
+        const value = arg.substring(1);
+        switch(get_arg_type(arg))
         {
-            case '$':
+            case 'I':
                 // immediate
                 values.push(to_number(value));
                 break;
-            case '%':
+            case 'R':
                 // register
                 values.push(registers[value]);
                 break;
-            case '.':
+            case 'L':
                 // label
-                values.push(labels[a]);
+                values.push(labels[arg]);
                 break;
         }
     }
