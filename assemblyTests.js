@@ -204,7 +204,6 @@ function error_tests()
         "Too many operands": ["add $1 %rax %rax"],
         "Invalid operands": ["add 1 %rax"],
         "Invalid immediate": ["add $one %rax"],
-        "Negative immediate": ["add $-1 %rax"],
         "Floating-point immediate": ["add $0.1 %rax"],
         "Invalid register": ["add $1 %foo"],
         "Invalid input argument": ["", {"rdi": "abc"}],

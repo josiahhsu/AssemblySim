@@ -60,7 +60,7 @@ function is_noop(line)
 function is_immediate(arg)
 {
     const n = to_number(arg.substring(1));
-    return arg.charAt(0) == '$' && !(isNaN(n) || n < 0);
+    return arg.charAt(0) == '$' && !isNaN(n);
 }
 
 function is_register(arg)
