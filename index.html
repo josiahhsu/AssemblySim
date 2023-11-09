@@ -127,23 +127,21 @@
                         value = [
                             "# pow: returns %rdi to the power of %rsi",
                             "# if %rdi = 0, return 0",
-                            "cmp $0 %rdi ",
+                            "cmp $0 %rdi",
                             "je .end",
-                            "# if %rds <= 0, return 0",
-                            "cmp $0 %rsi ",
-                            "jle .end",
                             "# initialize %r10 as 1",
                             "inc %r10",
                             "# while %rsi > 0, multiply %r10 by %rdi",
                             ".loop:",
-                            "cmp $0 %rsi ",
+                            "cmp $0 %rsi",
                             "jle .end",
                             "mul %rdi %r10",
                             "dec %rsi",
                             "jmp .loop",
-                            "# move final result to %rax",
                             ".end:",
-                            "mov %r10 %rax"];
+                            "# if %rsi = 0, then move result to %rax",
+                            "cmp $0 %rsi",
+                            "cmove %r10 %rax"];
                         break;
                 }
                 document.getElementById('code').value = value.join("\n");
