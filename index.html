@@ -72,7 +72,10 @@
                     params.appendChild(label);
 
                     let input = document.createElement("input");
+                    input.value = 0;
                     input.id=c;
+                    // formatting - removes leading 0s, replaces blank w/ 0
+                    input.onchange = ()=>{const e = document.getElementById(c); e.value = Number(e.value);};
                     params.appendChild(input);
 
                     params.appendChild(document.createElement("br"));
