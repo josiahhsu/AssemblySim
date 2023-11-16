@@ -1,6 +1,6 @@
 function run_all()
 {
-    run_tests([standard_tests(), input_arg_tests(), flag_tests(), cond_tests(), error_tests()]);
+    run_tests([standard_tests(), input_arg_tests(), flag_tests(), cond_tests(), memory_tests(), error_tests()]);
 }
 
 function run_tests(test_suites)
@@ -202,7 +202,6 @@ function error_tests()
         "No operands": ["add"],
         "Not enough operands": ["add $1"],
         "Too many operands": ["add $1 %rax %rax"],
-        "Invalid operands": ["add 1 %rax"],
         "Invalid immediate": ["add $one %rax"],
         "Floating-point immediate": ["add $0.1 %rax"],
         "Invalid register": ["add $1 %foo"],
@@ -255,6 +254,28 @@ function input_arg_tests()
         "ignored param": ["inc %rax", {"rdi": 9}, "1"],
         "out-of-order param": ["mov %r8 %rax", {"r8": 17}, "17"],
         "all params": ["or %rdi %rax\n or %rsi %rax\n or %rdx %rax\n or %rcx %rax\n or %r8 %rax\n or %r9 %rax", {"rdi": 1, "rsi": 2, "rdx": 4, "rcx": 8, "r8": 16, "r9": 32}, "63"],
+    };
+
+    return [f, tests];
+}
+
+function memory_tests()
+{
+    function f(params)
+    {
+        return test_equal(get_parse_result(params[0]), params[1]);
+    }
+
+    const tests = {
+        "Imm": ["add $1 2\n mov 2 %rax", "1"],
+        "(b)": ["add $2 %r8\n add $1 (%r8)\n mov (%r8) %rax", "1"],
+        "Imm(b)": ["add $2 %r8\n add $1 2(%r8)\n mov 2(%r8) %rax", "1"],
+        "(b,i)": ["add $2 %r8\n add $2 %r9\n add $1 (%r8,%r9)\n mov (%r8,%r9) %rax", "1"],
+        "Imm(b,i)": ["add $2 %r8\n add $2 %r9\n add $1 2(%r8,%r9)\n mov 2(%r8,%r9) %rax", "1"],
+        "(,i,s)": ["add $2 %r8\n add $1 (,%r8,2)\n mov (,%r8,2) %rax", "1"],
+        "Imm(,i,s)": ["add $2 %r8\n add $1 2(,%r8,2)\n mov 2(,%r8,2) %rax", "1"],
+        "(b,i,s)": ["add $2 %r8\n add $2 %r9\n add $1 (%r8,%r9,2)\n mov (%r8,%r9,2) %rax", "1"],
+        "Imm(b,i,s)": ["add $2 %r8\n add $2 %r9\n add $1 2(%r8,%r9,2)\n mov 2(%r8,%r9,2) %rax", "1"],
     };
 
     return [f, tests];

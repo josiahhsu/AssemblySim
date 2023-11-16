@@ -4,6 +4,7 @@ const register_args = ["rdi","rsi","rdx","rcx","r8","r9"];
 const flag_names = ["ZF", "SF", "OF"];
 const instructions = get_ops();
 let stack = [];
+let memory = [];
 let labels = {};
 let registers = {};
 let flags = {};
@@ -74,6 +75,33 @@ function is_label(arg)
     return arg.charAt(0) == '.' && arg in labels;
 }
 
+function is_memory(arg)
+{
+    const imm = arg.match(/^\d+$/);
+    if (imm)
+        return !isNaN(to_number(imm[0]));
+
+    const tag = arg.match(/(\d*)\((.*)\)/);
+    if (!tag)
+        return false;
+
+    if (isNaN(to_number(tag[1])))
+        return false;
+
+    const values = tag[2].split(',');
+    switch(values.length)
+    {
+        case 1:
+            return is_register(values[0]);
+        case 2:
+            return is_register(values[0]) && is_register(values[1]);
+        case 3:
+            return (values[0] == "" || is_register(values[0])) && is_register(values[1]) && /[1,2,4,8]/.test(values[2]);
+        default:
+            return false;
+    }
+}
+
 function get_arg_type(arg)
 {
     if (is_immediate(arg))
@@ -82,6 +110,8 @@ function get_arg_type(arg)
         return "R"; // register
     else if (is_label(arg))
         return "L"; // label
+    else if (is_memory(arg))
+        return "M";
     else
         return "E"; // error
 }
@@ -94,7 +124,7 @@ function check_type(arg, types)
 
 function arg_types_to_names(types)
 {
-    const typenames = {"I":"Immediate", "R":"Register", "L":"Label"};
+    const typenames = {"I":"Immediate", "R":"Register", "L":"Label", "M":"Memory"};
     return types.split("").map((x)=>{return typenames[x];}).join(", ");
 }
 
@@ -214,8 +244,9 @@ function init(input_args)
         flags[f] = 0;
     }
 
-    // reset stack and instruction pointer
+    // reset stack, memory, and instruction pointer
     stack = [];
+    memory = [];
     ip = 0;
 
     return true;
@@ -280,6 +311,38 @@ function parse_line(line)
     return instructions[tokens[0]][0](tokens.slice(1));
 }
 
+function load_address(arg)
+{
+    const pure_imm = arg.match(/^\d+$/);
+    if (pure_imm)
+        return to_number(pure_imm[0]);
+
+    const tag = arg.match(/(\d)*\((.*)\)/);
+    let imm = to_number(tag[1]);
+    imm = isNaN(imm)? 0 : imm;
+    const values = tag[2].split(',');
+    switch(values.length)
+    {
+        case 1:
+            return imm + registers[values[0].substring(1)];
+        case 2:
+            return imm + registers[values[0].substring(1)] + registers[values[1].substring(1)];
+        case 3:
+            const b = (values[0] == ""? 0 : registers[values[0].substring(1)]);
+            return imm + b + (registers[values[1].substring(1)] * to_number(values[2]));
+        default:
+            return NaN;
+    }
+}
+
+function reference_address(arg)
+{
+    const addr = load_address(arg);
+    if (isNaN(addr))
+        return NaN;
+    return isNaN(memory[addr])? 0 : memory[addr];
+}
+
 function evaluate_args(args)
 {
     let values = [];
@@ -299,6 +362,10 @@ function evaluate_args(args)
             case 'L':
                 // label
                 values.push(labels[arg]);
+                break;
+            case 'M':
+                // memory
+                values.push(reference_address(arg));
                 break;
         }
     }
@@ -325,7 +392,17 @@ function handle_op(op, args, flag, store)
             runtime_error(`Operation with arguments [${values.join(", ")}] resulted in NaN`);
             return false;
         }
-        registers[args[args.length-1].substring(1)] = to_32bit(raw);
+
+        const dest = args[args.length-1];
+        switch (get_arg_type(dest))
+        {
+            case "R":
+                registers[dest.substring(1)] = to_32bit(raw);
+                break;
+            case "M":
+                memory[load_address(dest)] = to_32bit(raw);
+                break;
+        }
     }
 
     // set condition codes
@@ -435,8 +512,9 @@ function make_cond_ops(ops, prefix, f, types)
 function get_ops()
 {
     let ops = {};
-    const sd = ["IR", "R"];
-    const d = ["R"];
+    const sd = ["IRM", "RM"];
+    const s = ["IRM"];
+    const d = ["RM"];
 
     // D + S
     ops["add"] = make_arith( (x)=>{ return x[1] + x[0]; }, sd);
@@ -489,7 +567,7 @@ function get_ops()
     ops["xor"] = make_logic( (x)=>{ return x[1] ^ x[0]; }, sd);
 
     // increments %rsp, then pushes S onto stack at pos %rsp
-    ops["push"] = make_none( (x)=>{ stack[++registers["rsp"]] = x[0]; }, ["IR"], false);
+    ops["push"] = make_none( (x)=>{ stack[++registers["rsp"]] = x[0]; }, s, false);
 
     // pops stack value at pos %rsp into D, then decrements %rsp
     ops["pop"] = make_none( (x)=>{ return stack[registers["rsp"]--]; }, d);
@@ -501,15 +579,15 @@ function get_ops()
     ops["test"] = make_logic( (x)=>{ return x[1] & x[0]; }, sd, false);
 
     // set operations
-    make_cond_ops(ops, "set", make_none, ["R"]);
+    make_cond_ops(ops, "set", make_none, d);
 
     // jump operations
     ops["jmp"] = make_jump( ()=>{ return 1; }, ["IL"]);
     make_cond_ops(ops, "j", make_jump, ["IL"]);
 
     // move operations
-    ops["mov"] = make_move( ()=>{ return 1; }, ["R", "R"]);
-    make_cond_ops(ops, "cmov", make_move, ["R", "R"]);
+    ops["mov"] = make_move( ()=>{ return 1; }, ["RM", "RM"]);
+    make_cond_ops(ops, "cmov", make_move, ["RM", "RM"]);
 
     return ops;
 }
