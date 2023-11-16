@@ -77,24 +77,22 @@ function is_label(arg)
 
 function is_memory(arg)
 {
+    // immediate memory reference
     const imm = arg.match(/^\d+$/);
     if (imm)
         return !isNaN(to_number(imm[0]));
 
+    // register memory reference
     const tag = arg.match(/(\d*)\((.*)\)/);
-    if (!tag)
-        return false;
-
-    if (isNaN(to_number(tag[1])))
+    if (!tag || isNaN(to_number(tag[1])))
         return false;
 
     const values = tag[2].split(',');
     switch(values.length)
     {
         case 1:
-            return is_register(values[0]);
         case 2:
-            return is_register(values[0]) && is_register(values[1]);
+            return values.every(is_register)
         case 3:
             return (values[0] == "" || is_register(values[0])) && is_register(values[1]) && /[1,2,4,8]/.test(values[2]);
         default:
@@ -320,6 +318,7 @@ function load_address(arg)
     const tag = arg.match(/(\d)*\((.*)\)/);
     let imm = to_number(tag[1]);
     imm = isNaN(imm)? 0 : imm;
+
     const values = tag[2].split(',');
     switch(values.length)
     {
