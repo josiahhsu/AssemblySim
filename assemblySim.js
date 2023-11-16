@@ -1,3 +1,4 @@
+"use strict";
 const register_names = ["rax","rbx","rcx","rdx","rsi","rdi","rbp","rsp","r8","r9","r10","r11","r12","r13","r14","r15"];
 const register_args = ["rdi","rsi","rdx","rcx","r8","r9"];
 const flag_names = ["ZF", "SF", "OF"];
@@ -138,9 +139,9 @@ function check_line(line)
 function prepass(code)
 {
     labels = {};
-    label_operations = [];
 
     // do a pass over the code to check syntax
+    let label_operations = [];
     const lines = code.split("\n");
     for (ip = 0; ip < lines.length; ip++)
     {
