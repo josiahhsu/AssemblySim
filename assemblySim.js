@@ -391,15 +391,16 @@ function handle_op(op, args, flag, store)
             runtime_error(`Operation with arguments [${values.join(", ")}] resulted in NaN`);
             return false;
         }
+        const result = to_32bit(raw);
 
         const dest = args[args.length-1];
         switch (get_arg_type(dest))
         {
             case "R":
-                registers[dest.substring(1)] = to_32bit(raw);
+                registers[dest.substring(1)] = result;
                 break;
             case "M":
-                memory[load_address(dest)] = to_32bit(raw);
+                memory[load_address(dest)] = result;
                 break;
         }
     }
