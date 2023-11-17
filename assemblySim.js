@@ -78,7 +78,7 @@ function is_label(arg)
 function is_memory(arg)
 {
     // immediate memory reference
-    const imm = arg.match(/^-?\d+$/);
+    const imm = arg.match(/^\d+$/);
     if (imm)
         return !isNaN(to_number(imm[0]));
 
@@ -339,8 +339,11 @@ function load_address(arg)
 function reference_address(arg)
 {
     const addr = load_address(arg);
-    if (isNaN(addr))
+    if (isNaN(addr) || addr < 0)
+    {
+        runtime_error(`${arg} yielded invalid memory address ${addr}`);
         return NaN;
+    }
     return isNaN(memory[addr])? 0 : memory[addr];
 }
 
@@ -366,7 +369,10 @@ function evaluate_args(args)
                 break;
             case 'M':
                 // memory
-                values.push(reference_address(arg));
+                const addr = reference_address(arg);
+                if (isNaN(addr))
+                    return null;
+                values.push(addr);
                 break;
             default:
                 runtime_error(`Unknown argument type for ${arg}`);

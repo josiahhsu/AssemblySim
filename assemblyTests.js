@@ -216,6 +216,7 @@ function error_tests()
         "Bad label": [".no_colon\ninc %rax"],
         "Unknown label": ["inc %rax\n cmp $5 %rax\n jne .test"],
         "Duplicate label": [".dup:\n .dup:\n inc %rax"],
+        "Negative memory access": ["dec %r10\n inc (%r10)"],
         "Bad memory form 1": ["inc ()"],
         "Bad memory form 2": ["inc 1()"],
         "Bad memory form 3": ["inc 1(,)"],
@@ -238,6 +239,7 @@ function error_tests()
         "Bad memory form 20": ["inc (%r10,,4)"],
         "Bad memory form 21": ["inc a(%r10)"],
         "Bad memory form 22": ["inc %r10(%r10)"],
+        "Bad memory form 23": ["inc -1"],
     };
 
     return [f, tests];

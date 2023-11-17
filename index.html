@@ -156,12 +156,12 @@
                             ".loop:",
                             "cmp %r10 %rdi",
                             "jl .end",
+                            "inc %r10",
                             "add -2(%r10) (%r10)",
                             "add -1(%r10) (%r10)",
-                            "inc %r10",
                             "jmp .loop",
                             ".end:",
-                            "mov (%rdi) %rax"];
+                            "mov -1(%r10) %rax"];
                         break;
                 }
                 document.getElementById('code').value = value.join("\n");
