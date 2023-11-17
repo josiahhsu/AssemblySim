@@ -230,6 +230,14 @@ function error_tests()
         "Bad memory form 12": ["inc (%r10,%r10,-1)"],
         "Bad memory form 13": ["inc (%r10,%r10,)"],
         "Bad memory form 14": ["inc (%r10,%r10,44)"],
+        "Bad memory form 15": ["inc (%r10,4,%r10)"],
+        "Bad memory form 16": ["inc (4,%r10,%r10)"],
+        "Bad memory form 17": ["inc (%r10,  %r10,   1)"],
+        "Bad memory form 18": ["inc ((%r10))"],
+        "Bad memory form 19": ["inc (%r10"],
+        "Bad memory form 20": ["inc (%r10,,4)"],
+        "Bad memory form 21": ["inc a(%r10)"],
+        "Bad memory form 22": ["inc %r10(%r10)"],
     };
 
     return [f, tests];
