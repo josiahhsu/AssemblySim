@@ -83,7 +83,7 @@ function is_memory(arg)
         return !isNaN(to_number(imm[0]));
 
     // register memory reference
-    const tag = arg.match(/(\d*)\((.*)\)/);
+    const tag = arg.match(/^(-?\d*)\((.*)\)/);
     if (!tag || isNaN(to_number(tag[1])))
         return false;
 
@@ -315,7 +315,7 @@ function load_address(arg)
     if (pure_imm)
         return to_number(pure_imm[0]);
 
-    const tag = arg.match(/(-?\d)*\((.*)\)/);
+    const tag = arg.match(/^(-?\d)*\((.*)\)/);
     let imm = to_number(tag[1]);
     imm = isNaN(imm)? 0 : imm;
 
