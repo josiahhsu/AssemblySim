@@ -21,6 +21,9 @@
         Lines starting with a pound sign will be treated as comments and skipped.
         Lines starting with a period and ending with a colon are labels that can be used for jump destinations.
         Operands can either be an immediate value (prefixed with $) or a register name (prefixed with %).
+        Operands can also be a memory reference of a valid addressing mode, which can be one of the following forms:
+        Imm, (b), Imm(b), (b,i), Imm(b,i), (,i,s), Imm(,i,s), (b,i,s), Imm(b,i,s).
+        For the most general form Imm(b, i, s), Imm is an immediate offset, b is a base register, i is an index register, and s is a scalar for i (must be 1, 2, 4, or 8).
         Operand values and operation results are limited to 32-bit signed integers.
         By convention the return value will be stored in register %rax.
         Register %rsp is the stack pointer, meaning the stack top is stored at the position specified by %rsp.
