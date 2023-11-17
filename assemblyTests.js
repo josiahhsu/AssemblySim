@@ -65,6 +65,11 @@ function flags_equal(expected)
     return equal;
 }
 
+function array_equals(a, b)
+{
+    return a.length == b.length && a.every((v, i) => (v == b[i]));
+}
+
 function standard_tests()
 {
     function f(params)
@@ -263,19 +268,38 @@ function memory_tests()
 {
     function f(params)
     {
-        return test_equal(get_parse_result(params[0]), params[1]);
+        if (get_parse_result(params[0]) == "ERROR")
+        {
+            console.error("FAILED: error in program execution");
+            return false;
+        }
+
+        const equal = array_equals(memory, params[1]);
+        print_test_result(equal, params[1], memory);
+        return equal;
+    }
+
+    function make_mem(values)
+    {
+        let mem = [];
+        for (var i = 0; i < values.length; i++)
+        {
+            mem[values[i][0]] = values[i][1];
+        }
+        return mem;
     }
 
     const tests = {
-        "Imm": ["add $1 2\n mov 2 %rax", "1"],
-        "(b)": ["add $2 %r8\n add $1 (%r8)\n mov (%r8) %rax", "1"],
-        "Imm(b)": ["add $2 %r8\n add $1 2(%r8)\n mov 2(%r8) %rax", "1"],
-        "(b,i)": ["add $2 %r8\n add $2 %r9\n add $1 (%r8,%r9)\n mov (%r8,%r9) %rax", "1"],
-        "Imm(b,i)": ["add $2 %r8\n add $2 %r9\n add $1 2(%r8,%r9)\n mov 2(%r8,%r9) %rax", "1"],
-        "(,i,s)": ["add $2 %r8\n add $1 (,%r8,2)\n mov (,%r8,2) %rax", "1"],
-        "Imm(,i,s)": ["add $2 %r8\n add $1 2(,%r8,2)\n mov 2(,%r8,2) %rax", "1"],
-        "(b,i,s)": ["add $2 %r8\n add $2 %r9\n add $1 (%r8,%r9,2)\n mov (%r8,%r9,2) %rax", "1"],
-        "Imm(b,i,s)": ["add $2 %r8\n add $2 %r9\n add $1 2(%r8,%r9,2)\n mov 2(%r8,%r9,2) %rax", "1"],
+        "Imm": ["add $1 2", make_mem([[2, 1]])],
+        "(b)": ["add $2 %r8\n add $1 (%r8)", make_mem([[2, 1]])],
+        "Imm(b)": ["add $2 %r8\n add $1 2(%r8)", make_mem([[4, 1]])],
+        "(b,i)": ["add $2 %r8\n add $2 %r9\n add $1 (%r8,%r9)", make_mem([[4, 1]])],
+        "Imm(b,i)": ["add $2 %r8\n add $2 %r9\n add $1 2(%r8,%r9)", make_mem([[6, 1]])],
+        "(,i,s)": ["add $2 %r8\n add $1 (,%r8,2)", make_mem([[4, 1]])],
+        "Imm(,i,s)": ["add $2 %r8\n add $1 2(,%r8,2)", make_mem([[6, 1]])],
+        "(b,i,s)": ["add $2 %r8\n add $2 %r9\n add $1 (%r8,%r9,2)", make_mem([[6, 1]])],
+        "Imm(b,i,s)": ["add $2 %r8\n add $2 %r9\n add $1 2(%r8,%r9,2)", make_mem([[8, 1]])],
+        "Multiple references": ["add $8 8\n add $6 14", make_mem([[8,8], [14,6]])],
     };
 
     return [f, tests];
