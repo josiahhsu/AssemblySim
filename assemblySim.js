@@ -368,6 +368,9 @@ function evaluate_args(args)
                 // memory
                 values.push(reference_address(arg));
                 break;
+            default:
+                runtime_error(`Unknown argument type for ${arg}`);
+                return null;
         }
     }
     return values;
@@ -404,6 +407,9 @@ function handle_op(op, args, flag, store)
             case "M":
                 memory[load_address(dest)] = result;
                 break;
+            default:
+                runtime_error(`Invalid destination ${dest}`);
+                return false;
         }
     }
 
