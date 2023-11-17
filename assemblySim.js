@@ -94,7 +94,7 @@ function is_memory(arg)
         case 2:
             return values.every(is_register)
         case 3:
-            return (values[0] == "" || is_register(values[0])) && is_register(values[1]) && /[1,2,4,8]/.test(values[2]);
+            return (values[0] == "" || is_register(values[0])) && is_register(values[1]) && /^[1,2,4,8]$/.test(values[2]);
         default:
             return false;
     }

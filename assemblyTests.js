@@ -223,6 +223,13 @@ function error_tests()
         "Bad memory form 5": ["add $1 5.1(%r10)"],
         "Bad memory form 6": ["add $1 $1(%r10)"],
         "Bad memory form 7": ["add $1 1(%r10,%r10,%r10)"],
+        "Bad memory form 8": ["add $1 --1(%r10,%r10)"],
+        "Bad memory form 9": ["add $1 (8)"],
+        "Bad memory form 10": ["add $1 (%r10,8)"],
+        "Bad memory form 11": ["add $1 (%r10,%r10,7)"],
+        "Bad memory form 12": ["add $1 (%r10,%r10,-1)"],
+        "Bad memory form 13": ["add $1 (%r10,%r10,)"],
+        "Bad memory form 14": ["add $1 (%r10,%r10,44)"],
     };
 
     return [f, tests];
