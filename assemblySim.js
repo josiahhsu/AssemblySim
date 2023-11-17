@@ -109,7 +109,7 @@ function get_arg_type(arg)
     else if (is_label(arg))
         return "L"; // label
     else if (is_memory(arg))
-        return "M";
+        return "M"; // memory
     else
         return "E"; // error
 }
@@ -319,19 +319,21 @@ function load_address(arg)
     let imm = to_number(tag[1]);
     imm = isNaN(imm)? 0 : imm;
 
+    let b = 0, i = 0, s = 1;
     const values = tag[2].split(',');
     switch(values.length)
     {
-        case 1:
-            return imm + registers[values[0].substring(1)];
-        case 2:
-            return imm + registers[values[0].substring(1)] + registers[values[1].substring(1)];
         case 3:
-            const b = (values[0] == ""? 0 : registers[values[0].substring(1)]);
-            return imm + b + (registers[values[1].substring(1)] * to_number(values[2]));
+            s = to_number(values[2]);
+        case 2:
+            i = registers[values[1].substring(1)];
+        case 1:
+            b = (values[0] == ""? 0 : registers[values[0].substring(1)]);
+            break;
         default:
             return NaN;
     }
+    return imm + b + (i * s);
 }
 
 function reference_address(arg)
