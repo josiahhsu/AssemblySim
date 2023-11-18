@@ -80,10 +80,13 @@ function standard_tests()
     const tests = {
         "add immediate": ["add $8 %rax", "8"],
         "add register": ["add $8 %rsi\n add %rsi %rax", "8"],
+        "add memory": ["add $8 (%rsi)\n add (%rsi) %rax", "8"],
         "sub immediate": ["sub $8 %rax", "-8"],
         "sub register": ["add $8 %rsi\n sub %rsi %rax", "-8"],
+        "sub memory": ["add $8 (%rsi)\n sub (%rsi) %rax", "-8"],
         "mul immediate": ["add $1 %rax\n mul $8 %rax", "8"],
         "mul register": ["add $1 %rax\n add $8 %rsi\n mul %rsi %rax", "8"],
+        "mul memory": ["add $1 %rax\n add $8 (%rsi)\n mul (%rsi) %rax", "8"],
         "div pos pos": ["add $20 %rax\n div $8", "2"],
         "div neg pos": ["sub $20 %rax\n div $8", "-2"],
         "div pos neg": ["add $20 %rax\n sub $8 %r8\n div %r8", "-2"],
