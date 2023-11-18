@@ -191,6 +191,7 @@ function cond_tests()
 
     tests["jg OF"] = ["add $1 %r10\n shl $31 %r10\n cmp $1 %r10\n jg $5\n add $1 %rax\n add $10 %rax", "11"];
     tests["jl OF"] = ["add $1 %r10\n shl $31 %r10\n cmp $1 %r10\n jl $5\n add $1 %rax\n add $10 %rax", "10"];
+    tests["eval arg only if cond succeeds"] = ["dec %rax\n cmp $0 %rax\n cmove (%rax) %rax", "-1"];
 
     return [f, tests];
 }

@@ -328,7 +328,7 @@ function load_address(arg)
         case 2:
             i = registers[values[1].substring(1)];
         case 1:
-            b = (values[0] == ""? 0 : registers[values[0].substring(1)]);
+            b = (values[0] == "")? 0 : registers[values[0].substring(1)];
             break;
         default:
             return NaN;
@@ -427,9 +427,14 @@ function handle_op(op, args, flag, store)
 
 /** Wrappers and helpers for making operator functions. */
 
-function make_op(f, types, flag, store)
+function make_op(f, types, flag, store, cond=null)
 {
-    return [(args)=>{ return handle_op(f, args, flag, store); }, types];
+    function op(args)
+    {
+        return handle_op(f, args, flag, store);
+    }
+    // if a condition is passed in, wrap it around op
+    return [ cond? (args)=>{ return cond()? op(args) : true;} : op, types]
 }
 
 function msb(x)
@@ -469,19 +474,19 @@ function make_logic(f, types, store=true)
     return make_op(f, types, logic_flags, store);
 }
 
-function make_none(f, types, store=true)
+function make_none(f, types, store=true, cond=null)
 {
-    return make_op(f, types, (x)=>{}, store);
+    return make_op(f, types, (x)=>{}, store, cond);
 }
 
 function make_jump(cond, types)
 {
-    return make_none((x)=>{ if (cond() == 1) ip = x[0];}, types, false);
+    return make_none((x)=>{ ip = x[0];}, types, false, cond);
 }
 
 function make_move(cond, types)
 {
-    return make_none((x)=>{ return (cond() == 1)? x[0] : x[1];}, types);
+    return make_none((x)=>{ return x[0];}, types, true, cond);
 }
 
 function get_flag_ops()
