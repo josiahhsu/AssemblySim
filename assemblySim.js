@@ -512,7 +512,7 @@ function make_cond_ops(ops, prefix, make_function, types)
     const cond_names = Object.keys(flag_ops);
     for (const op of cond_names)
     {
-        ops[`${prefix}${op}`] = make_function(flag_ops[op], types);
+        ops[`${prefix}${op}`] = make_function(types, flag_ops[op]);
     }
 }
 
@@ -588,26 +588,26 @@ function get_ops()
     ops["test"] = make_logic( (x)=>{ return x[1] & x[0]; }, sd, false);
 
     // set operations
-    function make_set(cond, types)
+    function make_set(types, cond)
     {
         return make_none((x)=>{ return cond();}, types)
     }
     make_cond_ops(ops, "set", make_set, d);
 
     // jump operations
-    function make_jump(cond, types)
+    function make_jump(types, cond=null)
     {
         return make_none((x)=>{ ip = x[0];}, types, false, cond);
     }
-    ops["jmp"] = make_jump( ()=>{ return 1; }, ["IL"]);
+    ops["jmp"] = make_jump(["IL"]);
     make_cond_ops(ops, "j", make_jump, ["IL"]);
 
     // move operations
-    function make_move(cond, types)
+    function make_move(types, cond=null)
     {
         return make_none((x)=>{ return x[0];}, types, true, cond);
     }
-    ops["mov"] = make_move( ()=>{ return 1; }, ["RM", "RM"]);
+    ops["mov"] = make_move(["RM", "RM"]);
     make_cond_ops(ops, "cmov", make_move, ["RM", "RM"]);
 
     return ops;
