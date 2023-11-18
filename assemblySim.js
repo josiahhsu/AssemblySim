@@ -542,7 +542,7 @@ function get_ops()
         // ensure quotient isn't floating point
         registers["rax"] = to_32bit(registers["rax"] / x[0]);
     }
-    ops["div"] = make_arith( div, ["IR"], false);
+    ops["div"] = make_arith( div, s, false);
 
     // D++
     ops["inc"] = make_arith( (x)=>{ return x[0] + 1; }, d);
