@@ -512,7 +512,7 @@ function make_cond_ops(ops, prefix, make_function, types)
     const cond_names = Object.keys(flag_ops);
     for (const op of cond_names)
     {
-        ops[`${prefix}${op}`] = make_function(()=>{ return flag_ops[op](); }, types);
+        ops[`${prefix}${op}`] = make_function(flag_ops[op], types);
     }
 }
 
