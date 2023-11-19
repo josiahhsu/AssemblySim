@@ -434,7 +434,7 @@ function make_op(f, types, flag, store, cond=null)
         return handle_op(f, args, flag, store);
     }
     // if a condition is passed in, wrap it around op
-    return [ cond? (args)=>{ return cond()? op(args) : true;} : op, types];
+    return [ cond? (args)=>{ return cond()? op(args) : true; } : op, types];
 }
 
 function msb(x)
@@ -590,14 +590,14 @@ function get_ops()
     // set operations
     function make_set(cond)
     {
-        return make_none((x)=>{ return cond();}, d)
+        return make_none( (x)=>{ return cond(); }, d)
     }
     make_cond_ops(ops, "set", make_set);
 
     // jump operations
     function make_jump(cond=null)
     {
-        return make_none((x)=>{ ip = x[0];}, ["IL"], false, cond);
+        return make_none( (x)=>{ ip = x[0]; }, ["IL"], false, cond);
     }
     ops["jmp"] = make_jump();
     make_cond_ops(ops, "j", make_jump);
@@ -605,7 +605,7 @@ function get_ops()
     // move operations
     function make_move(cond=null)
     {
-        return make_none((x)=>{ return x[0];}, ["RM", "RM"], true, cond);
+        return make_none( (x)=>{ return x[0]; }, ["RM", "RM"], true, cond);
     }
     ops["mov"] = make_move();
     make_cond_ops(ops, "cmov", make_move);
