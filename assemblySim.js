@@ -434,7 +434,7 @@ function make_op(f, types, flag, store, cond=null)
         return handle_op(f, args, flag, store);
     }
     // if a condition is passed in, wrap it around op
-    return [ cond? (args)=>{ return cond()? op(args) : true;} : op, types]
+    return [ cond? (args)=>{ return cond()? op(args) : true;} : op, types];
 }
 
 function msb(x)
@@ -542,7 +542,7 @@ function get_ops()
         // ensure quotient isn't floating point
         registers["rax"] = to_32bit(registers["rax"] / x[0]);
     }
-    ops["div"] = make_arith( div, s, false);
+    ops["div"] = make_none( div, s, false);
 
     // D++
     ops["inc"] = make_arith( (x)=>{ return x[0] + 1; }, d);
