@@ -561,7 +561,7 @@ function get_ops()
     ops["shr"] = make_logic( (x)=>{ return x[1] >>> x[0]; }, sd);
 
     // -D
-    ops["neg"] = make_logic( (x)=>{ return -1*x[0]; }, d);
+    ops["neg"] = make_arith( (x)=>{ return -1*x[0]; }, d);
 
     // D & S
     ops["and"] = make_logic( (x)=>{ return x[1] & x[0]; }, sd);
@@ -570,7 +570,7 @@ function get_ops()
     ops["or"] = make_logic( (x)=>{ return x[1] | x[0]; }, sd);
 
     // ~D
-    ops["not"] = make_logic( (x)=>{ return ~x[0]; }, d);
+    ops["not"] = make_none( (x)=>{ return ~x[0]; }, d);
 
     // D ^ S
     ops["xor"] = make_logic( (x)=>{ return x[1] ^ x[0]; }, sd);
