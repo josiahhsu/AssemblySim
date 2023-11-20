@@ -1,4 +1,13 @@
 "use strict";
+class Op
+{
+    constructor(op, types)
+    {
+        this.op = op;
+        this.types = types;
+    }
+}
+
 const register_names = ["rax","rbx","rcx","rdx","rsi","rdi","rbp","rsp","r8","r9","r10","r11","r12","r13","r14","r15"];
 const register_args = ["rdi","rsi","rdx","rcx","r8","r9"];
 const flag_names = ["ZF", "SF", "OF"];
@@ -161,7 +170,7 @@ function check_line(line)
     }
 
     // check that arguments for selected instruction are valid
-    return check_args(tokens.slice(1), instructions[op][1]);
+    return check_args(tokens.slice(1), instructions[op].types);
 }
 
 function prepass(code)
@@ -306,7 +315,7 @@ function parse_line(line)
         return true;
 
     const tokens = line.split(/\s+/);
-    return instructions[tokens[0]][0](tokens.slice(1));
+    return instructions[tokens[0]].op(tokens.slice(1));
 }
 
 function load_address(arg)
@@ -434,7 +443,7 @@ function make_op(f, types, flag, store, cond=null)
         return handle_op(f, args, flag, store);
     }
     // if a condition is passed in, wrap it around op
-    return [ cond? (args)=>{ return cond()? op(args) : true; } : op, types];
+    return new Op(cond? (args)=>{ return cond()? op(args) : true; } : op, types);
 }
 
 function msb(x)
