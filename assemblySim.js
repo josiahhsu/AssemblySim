@@ -1,9 +1,10 @@
 "use strict";
 class Op
 {
-    constructor(op, types, flags, store)
+    constructor(op, types, evaluator, flags, store)
     {
         this.op = op;
+        this.eval_arg = evaluator;
         this.types = types;
         this.flags = flags? flags : (x)=> {};
         this.store = store;
@@ -11,7 +12,7 @@ class Op
 
     execute(args)
     {
-        const values = evaluate_args(args);
+        const values = this.eval_arg(args);
         if (!values)
             return false;
 
@@ -55,7 +56,7 @@ class Cond_Op extends Op
 {
     constructor(op, types, store, cond)
     {
-        super(op, types, null, store);
+        super(op, types, std_eval, null, store);
         this.cond = cond? cond : ()=>{ return 1; };
     }
 
@@ -415,7 +416,7 @@ function reference_address(arg)
     return isNaN(memory[addr])? 0 : memory[addr];
 }
 
-function evaluate_args(args)
+function std_eval(args)
 {
     let values = [];
     for (const arg of args)
@@ -476,7 +477,7 @@ function make_arith(f, types, store=true)
          */
         flags["OF"] = (to_32bit(raw) == raw)? 0 : 1;
     }
-    return new Op(f, types, arith_flags, store);
+    return new Op(f, types, std_eval, arith_flags, store);
 }
 
 function make_logic(f, types, store=true)
@@ -486,12 +487,12 @@ function make_logic(f, types, store=true)
         result_flags(result);
         flags["OF"] = 0;
     }
-    return new Op(f, types, logic_flags, store);
+    return new Op(f, types, std_eval, logic_flags, store);
 }
 
 function make_none(f, types, store=true)
 {
-    return new Op(f, types, null, store);
+    return new Op(f, types, std_eval, null, store);
 }
 
 function get_flag_ops()
@@ -601,6 +602,13 @@ function get_ops()
 
     // compares flags based on S2 & S1
     ops["test"] = make_logic( (x)=>{ return x[1] & x[0]; }, sd, false);
+
+    function lea_eval(args)
+    {
+        const addr = load_address(args[0]);
+        return [addr, std_eval([args[1]])];
+    }
+    ops["lea"] = new Op( (x)=>{ return x[0]; }, sd, lea_eval, null, true)
 
     // set operations
     function make_set(cond)

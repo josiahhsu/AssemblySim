@@ -114,6 +114,15 @@ function standard_tests()
         "general comment": ["#this is a comment", "0"],
         "commented instruction": ["#add $15 %rax\n add $7 %rax", "7"],
         "labeled jump": [".test:\n inc %rax\n cmp $5 %rax\n jne .test", "5"],
+        "lea Imm": ["lea 2 %rax", "2"],
+        "lea (b)": ["add $2 %r8\n lea (%r8) %rax", "2"],
+        "lea Imm(b)": ["add $2 %r8\n lea 2(%r8) %rax", "4"],
+        "lea (b,i)": ["add $2 %r8\n add $2 %r9\n lea (%r8,%r9) %rax", "4"],
+        "lea Imm(b,i)": ["add $2 %r8\n add $2 %r9\n lea 2(%r8,%r9) %rax", "6"],
+        "lea (,i,s)": ["add $2 %r8\n lea (,%r8,2) %rax", "4"],
+        "lea Imm(,i,s)": ["add $2 %r8\n lea 2(,%r8,2) %rax", "6"],
+        "lea (b,i,s)": ["add $2 %r8\n add $2 %r9\n lea (%r8,%r9,2) %rax", "6"],
+        "lea Imm(b,i,s)": ["add $2 %r8\n add $2 %r9\n lea 2(%r8,%r9,2) %rax", "8"],
     };
 
     return [f, tests];
