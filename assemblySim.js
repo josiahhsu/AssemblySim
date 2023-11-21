@@ -325,10 +325,7 @@ function init(input_args)
 
 function parse(code, input_args={}, max_iters=10000)
 {
-    if (!prepass(code))
-        return false;
-
-    if (!init(input_args))
+    if (!(prepass(code) && init(input_args)))
         return false;
 
     let count = 0;
@@ -441,10 +438,10 @@ function std_eval(args)
                 break;
             case 'M':
                 // memory
-                const addr = reference_address(arg);
-                if (isNaN(addr))
+                const ref_val = reference_address(arg);
+                if (isNaN(ref_val))
                     return null;
-                values.push(addr);
+                values.push(ref_val);
                 break;
             default:
                 runtime_error(`Unknown argument type for ${arg}`);
