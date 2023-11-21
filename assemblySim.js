@@ -4,7 +4,7 @@ class Op
     constructor(op, types, evaluator, flags, store_result)
     {
         this.op = op;
-        this.eval_arg = evaluator;
+        this.eval_args = evaluator;
         this.types = types;
         this.flags = flags? flags : (x)=>{};
         function store(raw, dest)
@@ -36,7 +36,7 @@ class Op
     execute(args)
     {
         // evaluate arguments
-        const values = this.eval_arg(args);
+        const values = this.eval_args(args);
         if (!values)
             return false;
 
@@ -609,8 +609,7 @@ function get_ops()
     // loads the effective memory address of S and stores in D
     function lea_eval(args)
     {
-        const addr = load_address(args[0]);
-        return [addr, std_eval([args[1]])];
+        return [load_address(args[0]), std_eval([args[1]])];
     }
     ops["lea"] = new Op( (x)=>{ return x[0]; }, ["M", d], lea_eval, null, true)
 
