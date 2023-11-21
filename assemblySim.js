@@ -606,6 +606,7 @@ function get_ops()
     // compares flags based on S2 & S1
     ops["test"] = make_logic( (x)=>{ return x[1] & x[0]; }, sd, false);
 
+    // loads the effective memory address of S and stores in D
     function lea_eval(args)
     {
         const addr = load_address(args[0]);
