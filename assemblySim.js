@@ -497,26 +497,26 @@ function make_none(f, types, store=true)
 
 function get_flag_ops()
 {
-    function bit(f)
+    function bit(x)
     {
-        return f() & 1;
+        return x & 1;
     }
 
     let ops = {};
 
-    ops["e"] = ()=>{ return bit(()=>{ return flags["ZF"]; })};
+    ops["e"] = ()=>{ return bit(flags["ZF"]); };
     ops["z"] = ops["e"];
-    ops["ne"] = ()=>{ return bit(()=>{ return ~flags["ZF"]; })};
+    ops["ne"] = ()=>{ return bit(~flags["ZF"]); };
     ops["nz"] = ops["ne"];
-    ops["s"] = ()=>{ return bit(()=>{ return flags["SF"]; })};
-    ops["ns"] = ()=>{ return bit(()=>{ return ~flags["SF"]; })};
-    ops["g"] = ()=>{ return bit(()=>{ return ~(flags["SF"] ^ flags["OF"]) & ~flags["ZF"]; })};
+    ops["s"] = ()=>{ return bit(flags["SF"]); };
+    ops["ns"] = ()=>{ return bit(~flags["SF"]); };
+    ops["g"] = ()=>{ return bit(~(flags["SF"] ^ flags["OF"]) & ~flags["ZF"]); };
     ops["nle"] = ops["g"];
-    ops["ge"] = ()=>{ return bit(()=>{ return ~(flags["SF"] ^ flags["OF"]); })};
+    ops["ge"] = ()=>{ return bit(~(flags["SF"] ^ flags["OF"])); };
     ops["nl"] = ops["ge"];
-    ops["l"] = ()=>{ return bit(()=>{ return flags["SF"] ^ flags["OF"]; })};
+    ops["l"] = ()=>{ return bit(flags["SF"] ^ flags["OF"]) ;};
     ops["nge"] = ops["l"];
-    ops["le"] = ()=>{ return bit(()=>{ return (flags["SF"] ^ flags["OF"]) | flags["ZF"]; })};
+    ops["le"] = ()=>{ return bit((flags["SF"] ^ flags["OF"]) | flags["ZF"]); };
     ops["ng"] = ops["le"];
 
     return ops;
