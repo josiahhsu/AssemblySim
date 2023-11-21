@@ -7,36 +7,30 @@ class Op
         this.eval_arg = evaluator;
         this.types = types;
         this.flags = flags? flags : (x)=>{};
-        if (store_result)
+        function store(raw, dest)
         {
-            this.store = (raw, dest) =>
+            // verify that operation yielded valid result before storing
+            if (isNaN(raw))
             {
-                // verify that operation yielded valid result before storing
-                if (isNaN(raw))
-                {
-                    runtime_error(`Operation with arguments [${values.join(", ")}] resulted in NaN`);
-                    return false;
-                }
-                const result = to_32bit(raw);
+                runtime_error(`Operation with arguments [${values.join(", ")}] resulted in NaN`);
+                return false;
+            }
+            const result = to_32bit(raw);
 
-                switch (get_arg_type(dest))
-                {
-                    case "R":
-                        registers[dest.substring(1)] = result;
-                        break;
-                    case "M":
-                        memory[load_address(dest)] = result;
-                        break;
-                    default:
-                        runtime_error(`Invalid destination ${dest}`);
-                        return false;
-                }
+            switch (get_arg_type(dest))
+            {
+                case "R":
+                    registers[dest.substring(1)] = result;
+                    break;
+                case "M":
+                    memory[load_address(dest)] = result;
+                    break;
+                default:
+                    runtime_error(`Invalid destination ${dest}`);
+                    return false;
             }
         }
-        else
-        {
-            this.store = (x,y)=>{};
-        }
+        this.store = store_result? store : (x,y)=>{};
     }
 
     execute(args)
