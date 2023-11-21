@@ -608,7 +608,7 @@ function get_ops()
         const addr = load_address(args[0]);
         return [addr, std_eval([args[1]])];
     }
-    ops["lea"] = new Op( (x)=>{ return x[0]; }, sd, lea_eval, null, true)
+    ops["lea"] = new Op( (x)=>{ return x[0]; }, ["M", d], lea_eval, null, true)
 
     // set operations
     function make_set(cond)
@@ -628,7 +628,7 @@ function get_ops()
     // move operations
     function make_move(cond=null)
     {
-        return new Cond_Op( (x)=>{ return x[0]; }, ["RM", "RM"], true, cond);
+        return new Cond_Op( (x)=>{ return x[0]; }, sd, true, cond);
     }
     ops["mov"] = make_move();
     make_cond_ops(ops, "cmov", make_move);
