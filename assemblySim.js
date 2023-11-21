@@ -7,7 +7,36 @@ class Op
         this.eval_arg = evaluator;
         this.types = types;
         this.flags = flags? flags : (x)=> {};
-        this.store = store;
+        if (store)
+        {
+            this.store = (raw, dest) =>
+            {
+                // verify that operation yielded valid result before storing
+                if (isNaN(raw))
+                {
+                    runtime_error(`Operation with arguments [${values.join(", ")}] resulted in NaN`);
+                    return false;
+                }
+                const result = to_32bit(raw);
+
+                switch (get_arg_type(dest))
+                {
+                    case "R":
+                        registers[dest.substring(1)] = result;
+                        break;
+                    case "M":
+                        memory[load_address(dest)] = result;
+                        break;
+                    default:
+                        runtime_error(`Invalid destination ${dest}`);
+                        return false;
+                }
+            }
+        }
+        else
+        {
+            this.store = (x,y)=>{};
+        }
     }
 
     execute(args)
@@ -19,31 +48,8 @@ class Op
         // calculate raw result
         const raw = this.op(values);
 
-        // convert to 32-bit result and store if needed
-        if (this.store)
-        {
-            // verify that operation yielded valid result before storing
-            if (isNaN(raw))
-            {
-                runtime_error(`Operation with arguments [${values.join(", ")}] resulted in NaN`);
-                return false;
-            }
-            const result = to_32bit(raw);
-
-            const dest = args[args.length-1];
-            switch (get_arg_type(dest))
-            {
-                case "R":
-                    registers[dest.substring(1)] = result;
-                    break;
-                case "M":
-                    memory[load_address(dest)] = result;
-                    break;
-                default:
-                    runtime_error(`Invalid destination ${dest}`);
-                    return false;
-            }
-        }
+        // store result if needed
+        this.store(raw, args[args.length-1]);
 
         // set condition codes
         this.flags(raw);
