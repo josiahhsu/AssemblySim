@@ -1,10 +1,69 @@
 "use strict";
 class Op
 {
-    constructor(op, types)
+    constructor(op, types, flags, store)
     {
         this.op = op;
         this.types = types;
+        this.flags = flags? flags : (x)=> {};
+        this.store = store;
+    }
+
+    execute(args)
+    {
+        const values = evaluate_args(args);
+        if (!values)
+            return false;
+
+        // calculate raw result
+        const raw = this.op(values);
+
+        // convert to 32-bit result and store if needed
+        if (this.store)
+        {
+            // verify that operation yielded valid result before storing
+            if (isNaN(raw))
+            {
+                runtime_error(`Operation with arguments [${values.join(", ")}] resulted in NaN`);
+                return false;
+            }
+            const result = to_32bit(raw);
+
+            const dest = args[args.length-1];
+            switch (get_arg_type(dest))
+            {
+                case "R":
+                    registers[dest.substring(1)] = result;
+                    break;
+                case "M":
+                    memory[load_address(dest)] = result;
+                    break;
+                default:
+                    runtime_error(`Invalid destination ${dest}`);
+                    return false;
+            }
+        }
+
+        // set condition codes
+        this.flags(raw);
+
+        return true;
+    }
+}
+
+class Cond_Op extends Op
+{
+    constructor(op, types, store, cond)
+    {
+        super(op, types, null, store);
+        this.cond = cond? cond : ()=>{ return 1; };
+    }
+
+    execute(args)
+    {
+        if (this.cond() == 1)
+            super.execute(args);
+        return true;
     }
 }
 
@@ -315,7 +374,7 @@ function parse_line(line)
         return true;
 
     const tokens = line.split(/\s+/);
-    return instructions[tokens[0]].op(tokens.slice(1));
+    return instructions[tokens[0]].execute(tokens.slice(1));
 }
 
 function load_address(arg)
@@ -391,60 +450,7 @@ function evaluate_args(args)
     return values;
 }
 
-// Generic function for handling an instruction with n arguments.
-// The flag parameter is a function that dictates how condition codes should be set.
-function handle_op(op, args, flag, store)
-{
-    const values = evaluate_args(args);
-    if (!values)
-        return false;
-
-    // calculate raw result
-    const raw = op(values);
-
-    // convert to 32-bit result and store if needed
-    if (store)
-    {
-        // verify that operation yielded valid result before storing
-        if (isNaN(raw))
-        {
-            runtime_error(`Operation with arguments [${values.join(", ")}] resulted in NaN`);
-            return false;
-        }
-        const result = to_32bit(raw);
-
-        const dest = args[args.length-1];
-        switch (get_arg_type(dest))
-        {
-            case "R":
-                registers[dest.substring(1)] = result;
-                break;
-            case "M":
-                memory[load_address(dest)] = result;
-                break;
-            default:
-                runtime_error(`Invalid destination ${dest}`);
-                return false;
-        }
-    }
-
-    // set condition codes
-    flag(raw);
-
-    return true;
-}
-
 /** Wrappers and helpers for making operator functions. */
-
-function make_op(f, types, flag, store, cond=null)
-{
-    function op(args)
-    {
-        return handle_op(f, args, flag, store);
-    }
-    // if a condition is passed in, wrap it around op
-    return new Op(cond? (args)=>{ return cond()? op(args) : true; } : op, types);
-}
 
 function msb(x)
 {
@@ -470,7 +476,7 @@ function make_arith(f, types, store=true)
          */
         flags["OF"] = (to_32bit(raw) == raw)? 0 : 1;
     }
-    return make_op(f, types, arith_flags, store);
+    return new Op(f, types, arith_flags, store);
 }
 
 function make_logic(f, types, store=true)
@@ -480,12 +486,12 @@ function make_logic(f, types, store=true)
         result_flags(result);
         flags["OF"] = 0;
     }
-    return make_op(f, types, logic_flags, store);
+    return new Op(f, types, logic_flags, store);
 }
 
-function make_none(f, types, store=true, cond=null)
+function make_none(f, types, store=true)
 {
-    return make_op(f, types, (x)=>{}, store, cond);
+    return new Op(f, types, null, store);
 }
 
 function get_flag_ops()
@@ -599,14 +605,14 @@ function get_ops()
     // set operations
     function make_set(cond)
     {
-        return make_none( (x)=>{ return cond(); }, d)
+        return new Cond_Op( (x)=>{ return cond(); }, d, true)
     }
     make_cond_ops(ops, "set", make_set);
 
     // jump operations
     function make_jump(cond=null)
     {
-        return make_none( (x)=>{ ip = x[0]; }, ["IL"], false, cond);
+        return new Cond_Op( (x)=>{ ip = x[0]; }, ["IL"], false, cond);
     }
     ops["jmp"] = make_jump();
     make_cond_ops(ops, "j", make_jump);
@@ -614,7 +620,7 @@ function get_ops()
     // move operations
     function make_move(cond=null)
     {
-        return make_none( (x)=>{ return x[0]; }, ["RM", "RM"], true, cond);
+        return new Cond_Op( (x)=>{ return x[0]; }, ["RM", "RM"], true, cond);
     }
     ops["mov"] = make_move();
     make_cond_ops(ops, "cmov", make_move);
