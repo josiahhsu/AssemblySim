@@ -616,7 +616,7 @@ function get_ops()
     // set operations
     function make_set(cond)
     {
-        return new Cond_Op( (x)=>{ return cond(); }, d, true)
+        return new Cond_Op( (x)=>{ return cond(); }, d, true, null)
     }
     make_cond_ops(ops, "set", make_set);
 
