@@ -537,9 +537,9 @@ function make_cond_ops(ops, prefix, make_function)
 function get_ops()
 {
     let ops = {};
-    const sd = ["IRM", "RM"];
     const s = ["IRM"];
     const d = ["RM"];
+    const sd = s.concat(d);
 
     // D + S
     ops["add"] = make_arith( (x)=>{ return x[1] + x[0]; }, sd);
