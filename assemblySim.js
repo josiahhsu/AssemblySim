@@ -1,13 +1,13 @@
 "use strict";
 class Op
 {
-    constructor(op, types, evaluator, flags, store)
+    constructor(op, types, evaluator, flags, store_result)
     {
         this.op = op;
         this.eval_arg = evaluator;
         this.types = types;
-        this.flags = flags? flags : (x)=> {};
-        if (store)
+        this.flags = flags? flags : (x)=>{};
+        if (store_result)
         {
             this.store = (raw, dest) =>
             {
