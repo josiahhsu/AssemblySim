@@ -35,6 +35,7 @@ class Op
 
     execute(args)
     {
+        // evaluate arguments
         const values = this.eval_arg(args);
         if (!values)
             return false;
@@ -62,6 +63,7 @@ class Cond_Op extends Op
 
     execute(args)
     {
+        // wrap condition around instruction execution
         if (this.cond() == 1)
             super.execute(args);
         return true;
@@ -416,6 +418,7 @@ function reference_address(arg)
     return isNaN(memory[addr])? 0 : memory[addr];
 }
 
+// standard evaluation function, used by most instructions
 function std_eval(args)
 {
     let values = [];
