@@ -77,7 +77,11 @@
                 <b>Input Arguments:</b><br>
                 <div id="input_args"></div>
                 <button onclick="run()">Run program</button><br>
-                <button onclick="run_all()">Run tests</button><br>
+                <button id="unittest" onclick="run_all()">Run tests</button><br>
+                <script>
+                    if (new URL(window.location.href).searchParams.get("devmode") !== "true")
+                        document.getElementById("unittest").hidden = true;
+                </script>
                 <p id="result"></p>
             </div>
         </div>
