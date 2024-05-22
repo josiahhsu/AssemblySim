@@ -15,26 +15,44 @@
     <h2>Assembly Simulator</h2>
 
     <p>
-        You can write programs in assembly code below.
-        The syntax for each line is [instruction] [Operand1] [Operand2] [...].
+        This is an assembly language simulator, modeled after the x86 assembly language.
+        While it was created with the intent to be as accurate as possible, it does not aim to achieve complete functional parity with actual x86 specifications,
+        Many simplifications were made to keep the scale of this project reasonable.
+        Features include the following:
+    </p>
+    <ul>
+        <li>Arithmetic, logical, and control flow instructions</li>
+        <li>Registers, a stack, and memory for storing and manipulating values</li>
+        <li>The zero, signed, and overflow condition flags for conditional instructions</li>
+    </ul>
+    <p>
+        This assembly language simulator syntax is based off of AT&T syntax.
+        Each line is structured as [instruction] [operand1] [operand2] [...].
+        For multi-operand instructions, parameters are ordered source before destination.
         Empty lines will be treated as no-ops and skipped.
         Lines starting with a pound sign will be treated as comments and skipped.
-        Lines starting with a period and ending with a colon are labels that can be used for jump destinations.
-        Operands can either be an immediate value (prefixed with $) or a register name (prefixed with %).
-        Operands can also be a memory reference of a valid addressing mode, which can be one of the following forms:
-        Imm, (b), Imm(b), (b,i), Imm(b,i), (,i,s), Imm(,i,s), (b,i,s), Imm(b,i,s).
+        Lines starting with a period and ending with a colon define labels that can be used for jump destinations.
+        Operands can be an immediate value (prefixed with $), a register name (prefixed with %), or a memory reference of a valid addressing mode.
+        Valid addressing modes are as follows: Imm, (b), Imm(b), (b,i), Imm(b,i), (,i,s), Imm(,i,s), (b,i,s), Imm(b,i,s).
         For the most general form Imm(b, i, s), Imm is an immediate offset, b is a base register, i is an index register, and s is a scalar for i (must be 1, 2, 4, or 8).
-        Operand values and operation results are limited to 32-bit signed integers.
-        By convention the return value will be stored in register %rax.
-        Register %rsp is the stack pointer, meaning the stack top is stored at the position specified by %rsp.
-        Registers %rdi, %rsi, %rdx, %rcx, %r8, and %r9 can have their values set as input arguments.
+        The main deviation from AT&T syntax is that there is no parameter sizing.
+        Operand values and operation results are limited to 32-bit signed integers, and registers will use the full 32 bits for storage.
     </p>
 
-    <p id="registers"></p>
-    <p id="instructions"></p>
+    <p id="registers">
+        By convention the return value will be stored in register %rax.
+        Register %rsp is the stack pointer, meaning the stack top is stored at the position specified by %rsp.
+        Since registers don't support sizing, the stack pointer will simply increment and decrement by 1 for pushes and pops respectively.
+        Registers %rdi, %rsi, %rdx, %rcx, %r8, and %r9 can have their values set as input arguments.
+    </p>
+    <p id="instructions">
+        Instructions follow x86 convention. Documentation of each instruction is omitted for brevity.
+    </p>
     <script>
-        document.getElementById("registers").innerText = `Available registers: ${register_names.join(", ")}`;
-        document.getElementById("instructions").innerText = `Available instructions: ${Object.keys(instructions).join(", ")}`;
+        const registerText = document.getElementById("registers").innerText;
+        document.getElementById("registers").innerText = `Available registers: ${register_names.join(", ")}\n` + registerText;
+        const instructionText = document.getElementById("instructions").innerText;
+        document.getElementById("instructions").innerText = `Available instructions: ${Object.keys(instructions).join(", ")}\n` + instructionText;
     </script>
 
     <b>Examples:</b>
