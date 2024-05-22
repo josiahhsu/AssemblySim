@@ -25,35 +25,6 @@
         <li>Registers, a stack, and memory for storing and manipulating values</li>
         <li>The zero, signed, and overflow condition flags for conditional instructions</li>
     </ul>
-    <p>
-        This assembly language simulator syntax is based off of AT&T syntax.
-        Each line is structured as [instruction] [operand1] [operand2] [...].
-        For multi-operand instructions, parameters are ordered source before destination.
-        Empty lines will be treated as no-ops and skipped.
-        Lines starting with a pound sign will be treated as comments and skipped.
-        Lines starting with a period and ending with a colon define labels that can be used for jump destinations.
-        Operands can be an immediate value (prefixed with $), a register name (prefixed with %), or a memory reference of a valid addressing mode.
-        Valid addressing modes are as follows: Imm, (b), Imm(b), (b,i), Imm(b,i), (,i,s), Imm(,i,s), (b,i,s), Imm(b,i,s).
-        For the most general form Imm(b, i, s), Imm is an immediate offset, b is a base register, i is an index register, and s is a scalar for i (must be 1, 2, 4, or 8).
-        The main deviation from AT&T syntax is that there is no parameter sizing.
-        Operand values and operation results are limited to 32-bit signed integers, and registers will use the full 32 bits for storage.
-    </p>
-
-    <p id="registers">
-        By convention the return value will be stored in register %rax.
-        Register %rsp is the stack pointer, meaning the stack top is stored at the position specified by %rsp.
-        Since registers don't support sizing, the stack pointer will simply increment and decrement by 1 for pushes and pops respectively.
-        Registers %rdi, %rsi, %rdx, %rcx, %r8, and %r9 can have their values set as input arguments.
-    </p>
-    <p id="instructions">
-        Instructions follow x86 convention. Documentation of each instruction is omitted for brevity.
-    </p>
-    <script>
-        const registerText = document.getElementById("registers").innerText;
-        document.getElementById("registers").innerText = `Available registers: ${register_names.join(", ")}\n` + registerText;
-        const instructionText = document.getElementById("instructions").innerText;
-        document.getElementById("instructions").innerText = `Available instructions: ${Object.keys(instructions).join(", ")}\n` + instructionText;
-    </script>
 
     <b>Examples:</b>
     <select id="examples">
@@ -76,35 +47,67 @@
             <div>
                 <b>Input Arguments:</b><br>
                 <div id="input_args"></div>
-                <button onclick="run()">Run program</button><br>
+                <button onclick="run()">Run program</button>
                 <button id="unittest" onclick="run_all()">Run tests</button><br>
-                <script>
-                    if (new URL(window.location.href).searchParams.get("devmode") !== "true")
-                        document.getElementById("unittest").hidden = true;
-                </script>
                 <p id="result"></p>
+            </div>
+            <div style="float: left;">
+                <p>
+                    This assembly language simulator syntax is based off of AT&T syntax.
+                    Each line is structured as [instruction] [operand1] [operand2] [...].
+                    For multi-operand instructions, parameters are ordered source before destination.
+                    Empty lines will be treated as no-ops and skipped.
+                    Lines starting with a pound sign will be treated as comments and skipped.
+                    Lines starting with a period and ending with a colon define labels that can be used for jump destinations.
+                    Operands can be an immediate value (prefixed with $), a register name (prefixed with %), or a memory reference of a valid addressing mode.
+                    Valid addressing modes are as follows: Imm, (b), Imm(b), (b,i), Imm(b,i), (,i,s), Imm(,i,s), (b,i,s), Imm(b,i,s).
+                    For the most general form Imm(b, i, s), Imm is an immediate offset, b is a base register, i is an index register, and s is a scalar for i (must be 1, 2, 4, or 8).
+                    The main deviation from AT&T syntax is that there is no parameter sizing.
+                    Operand values and operation results are limited to 32-bit signed integers, and registers will use the full 32 bits for storage.
+                </p>
+
+                <p id="registers">
+                    By convention the return value will be stored in register %rax.
+                    Register %rsp is the stack pointer, meaning the stack top is stored at the position specified by %rsp.
+                    Since registers don't support sizing, the stack pointer will simply increment and decrement by 1 for pushes and pops respectively.
+                    Registers %rdi, %rsi, %rdx, %rcx, %r8, and %r9 can have their values set as input arguments.
+                </p>
+                <p id="instructions">
+                    Instructions follow x86 convention. Documentation of each instruction is omitted for brevity.
+                </p>
+                <script>
+                    const registerText = document.getElementById("registers").innerText;
+                    document.getElementById("registers").innerText = `Available registers: ${register_names.join(", ")}\n` + registerText;
+                    const instructionText = document.getElementById("instructions").innerText;
+                    document.getElementById("instructions").innerText = `Available instructions: ${Object.keys(instructions).join(", ")}\n` + instructionText;
+                </script>
             </div>
         </div>
 
         <script>
+            if (new URL(window.location.href).searchParams.get("devmode") !== "true")
+                document.getElementById("unittest").hidden = true;
+
             function make_input_args()
             {
                 let params = document.getElementById("input_args");
                 for (const c of register_args)
                 {
+                    let div = document.createElement("div");
+                    div.style = "display:flex; justify-content: right;"
                     let label = document.createElement("label");
-                    label.for = c;
+                    label.htmlFor = c;
                     label.innerText = `%${c}${c.length == 2? " ": ""}`;
-                    params.appendChild(label);
+                    div.appendChild(label);
 
                     let input = document.createElement("input");
                     input.value = 0;
                     input.id=c;
                     // formatting - removes leading 0s, replaces blank w/ 0
                     input.onchange = ()=>{const e = document.getElementById(c); e.value = Number(e.value);};
-                    params.appendChild(input);
+                    div.appendChild(input);
 
-                    params.appendChild(document.createElement("br"));
+                    params.appendChild(div);
                 }
             }
             make_input_args();
