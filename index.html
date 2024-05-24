@@ -26,23 +26,23 @@
         <li>The zero, signed, and overflow condition flags for conditional instructions</li>
     </ul>
 
-    <b>Examples:</b>
-    <select id="examples">
-        <option value="abs">Abs</option>
-        <option value="div">Div</option>
-        <option value="pow">Pow</option>
-        <option value="fib">Fib</option>
-    </select>
-    <button onclick="load_example()">Load Example</button>
-    <br>
+
     <div>
         <div id="workspace">
             <div>
-                <b>Code:</b><br>
+                <b>Code editor:</b><br>
                 <div id="editor">
                     <div id="line-numbers"><span></span></div>
                     <textarea id="code" placeholder="Enter your code here."></textarea>
                 </div>
+                <b>Examples:</b>
+                <select id="examples">
+                    <option value="abs">Abs</option>
+                    <option value="div">Div</option>
+                    <option value="pow">Pow</option>
+                    <option value="fib">Fib</option>
+                </select>
+                <button onclick="load_example()">Load Example</button>
             </div>
             <div>
                 <b>Input Arguments:</b><br>
