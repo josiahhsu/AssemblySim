@@ -15,6 +15,17 @@
     counter-reset: linenumber -1;
 }
 
+#documentation{
+    float: left;
+    max-height:360px;
+    overflow-y: scroll;
+}
+
+.input_arg{
+    display:flex;
+    justify-content: right;
+}
+
 textarea{
     width: 300px;
     line-height: 21px;

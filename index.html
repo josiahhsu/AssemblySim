@@ -51,9 +51,9 @@
                 <button id="unittest" onclick="run_all()">Run tests</button><br>
                 <p id="result"></p>
             </div>
-            <div style="float: left;">
+            <div id="documentation">
                 <p>
-                    This assembly language simulator syntax is based off of AT&T syntax.
+                    This assembly language simulator's syntax is based off of AT&T syntax.
                     Each line is structured as [instruction] [operand1] [operand2] [...].
                     For multi-operand instructions, parameters are ordered source before destination.
                     Empty lines will be treated as no-ops and skipped.
@@ -94,7 +94,7 @@
                 for (const c of register_args)
                 {
                     let div = document.createElement("div");
-                    div.style = "display:flex; justify-content: right;"
+                    div.className = "input_arg";
                     let label = document.createElement("label");
                     label.htmlFor = c;
                     label.innerText = `%${c}${c.length == 2? " ": ""}`;
